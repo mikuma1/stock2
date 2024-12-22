@@ -23,6 +23,12 @@ gem 'jbuilder', '~> 2.7'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
+# 認証
+gem 'devise'
+# JWTトークン
+gem 'jwt'
+# CORS対策
+gem 'rack-cors'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
