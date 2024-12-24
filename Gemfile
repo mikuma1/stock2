@@ -29,6 +29,8 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
+  gem 'rswag-api'
+  gem 'rswag-ui'
 end
 
 group :development do
@@ -41,6 +43,7 @@ group :test do
   gem 'database_cleaner-active_record'
   gem 'rspec-json_expectations'
   gem 'shoulda-matchers'
+  gem 'rswag-specs'
 end
 
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
