@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# RSpecテストの実行
+docker-compose run --rm -e RAILS_ENV=test web bundle exec rspec $@ 

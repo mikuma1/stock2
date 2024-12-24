@@ -2,8 +2,8 @@ module Api
   module V1
     class UsersController < BaseController
       before_action :set_company
-      before_action :set_user, only: [:show, :update]
-      before_action :authorize_admin!, only: [:create, :update]
+      before_action :set_user, only: %i[show update]
+      before_action :authorize_admin!, only: %i[create update]
 
       def index
         users = @company.users.includes(:company)
@@ -46,9 +46,9 @@ module Api
       end
 
       def authorize_admin!
-        unless current_user.admin?
-          render_error('管理者権限が必要です', :forbidden)
-        end
+        return if current_user.admin?
+
+        render_error('管理者権限が必要です', :forbidden)
       end
     end
   end

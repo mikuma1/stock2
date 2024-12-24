@@ -4,7 +4,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
   let(:company) { create(:company) }
   let(:admin) { create(:user, :admin, company: company) }
   let(:user) { create(:user, company: company) }
-  
+
   describe 'GET /api/v1/companies/:company_id/users' do
     let!(:other_users) { create_list(:user, 3, company: company) }
 
@@ -16,7 +16,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it 'ユーザー一覧を取得できること' do
         get api_v1_company_users_path(company)
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body).size).to eq 4
+        expect(response.parsed_body.size).to eq 4
       end
     end
   end
@@ -30,7 +30,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it '指定したユーザーの情報を取得できること' do
         get api_v1_company_user_path(company, user)
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['email']).to eq user.email
+        expect(response.parsed_body['email']).to eq user.email
       end
     end
   end
@@ -53,21 +53,21 @@ RSpec.describe 'Api::V1::Users', type: :request do
 
       context '有効なパラメータの場合' do
         it 'ユーザーを作成できること' do
-          expect {
+          expect do
             post api_v1_company_users_path(company), params: valid_params
-          }.to change(User, :count).by(1)
-          
+          end.to change(User, :count).by(1)
+
           expect(response).to have_http_status(:created)
-          expect(JSON.parse(response.body)['email']).to eq 'test@example.com'
+          expect(response.parsed_body['email']).to eq 'test@example.com'
         end
       end
 
       context '無効なパラメータの場合' do
         it 'ユーザーを作成できないこと' do
-          expect {
+          expect do
             post api_v1_company_users_path(company), params: { user: { email: nil } }
-          }.not_to change(User, :count)
-          
+          end.not_to change(User, :count)
+
           expect(response).to have_http_status(:unprocessable_entity)
         end
       end
@@ -79,10 +79,10 @@ RSpec.describe 'Api::V1::Users', type: :request do
       end
 
       it 'ユーザーを作成できないこと' do
-        expect {
+        expect do
           post api_v1_company_users_path(company), params: valid_params
-        }.not_to change(User, :count)
-        
+        end.not_to change(User, :count)
+
         expect(response).to have_http_status(:forbidden)
       end
     end

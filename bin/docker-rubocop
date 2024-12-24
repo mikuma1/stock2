@@ -1,0 +1,5 @@
+#!/bin/bash
+set -e
+
+# Rubocopの実行
+docker-compose run --rm web bundle exec rubocop $@ 

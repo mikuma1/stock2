@@ -1,11 +1,11 @@
 module Api
   module V1
     class CompaniesController < BaseController
-      before_action :set_company, only: [:show, :update]
-      before_action :authorize_admin!, only: [:create, :update]
+      before_action :set_company, only: %i[show update]
+      before_action :authorize_admin!, only: %i[create update]
 
       def index
-        companies = Company.includes(:users)  # N+1対策
+        companies = Company.includes(:users) # N+1対策
         render_success(companies)
       end
 
@@ -41,4 +41,4 @@ module Api
       end
     end
   end
-end 
+end
