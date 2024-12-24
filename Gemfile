@@ -34,6 +34,7 @@ end
 group :development do
   gem 'listen', '~> 3.2'
   gem 'web-console', '>= 3.3.0'
+  gem 'ruby-lsp', '~> 0.22.1'
 end
 
 group :test do
