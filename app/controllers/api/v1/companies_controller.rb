@@ -26,7 +26,7 @@ module Api
         if @company.update(company_params)
           render_success(@company)
         else
-          render_error(company.errors.full_messages)
+          render_error(@company.errors.full_messages)
         end
       end
 
