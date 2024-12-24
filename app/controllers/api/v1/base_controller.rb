@@ -11,7 +11,13 @@ module Api
       end
 
       def render_error(message, status = :unprocessable_entity)
-        render json: { error: message }, status: status
+        render json: { errors: Array(message) }, status: status
+      end
+
+      def authorize_admin!
+        unless current_user.admin?
+          render_error('管理者権限が必要です', :forbidden)
+        end
       end
     end
   end
