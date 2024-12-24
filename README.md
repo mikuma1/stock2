@@ -17,7 +17,11 @@ cd stock2
 ```bash
 ./bin/setup-docker
 ```
-3. アプリケーションの起動
+3. Git hooksの設定
+```bash
+./bin/setup-hooks
+```
+4. アプリケーションの起動
 ```bash
 docker-compose up
 ```
@@ -54,6 +58,12 @@ git commit -m "feat: 新機能を追加"
 # プルリクエストを作成
 git push origin feature/new-feature
 ```
+
+## Git Hooks
+
+コミット時に自動的に以下のチェックが実行されます：
+- Rubocopによるコードチェック
+- RSpecテストの実行
 
 ## APIドキュメント
 ※ 別途作成予定
