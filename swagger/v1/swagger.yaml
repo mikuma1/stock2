@@ -50,3 +50,188 @@ paths:
                   $ref: "#/components/schemas/Company"
         "401":
           description: 認証エラー
+
+    post:
+      tags:
+        - Companies
+      summary: 企業の新規作成
+      security:
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: object
+                  properties:
+                    company_name:
+                      type: string
+                      description: "会社名"
+                    phone_number:
+                      type: string
+                      description: "電話番号"
+                    subdomain:
+                      type: string
+                      description: "サブドメイン"
+                  required:
+                    - company_name
+                    - phone_number
+                    - subdomain
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      company_name:
+                        type: array
+                        items:
+                          type: string
+                      phone_number:
+                        type: array
+                        items:
+                          type: string
+                      subdomain:
+                        type: array
+                        items:
+                          type: string
+
+  /api/v1/companies/{id}:
+    get:
+      tags:
+        - Companies
+      summary: 企業の詳細情報を取得
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "企業ID"
+      responses:
+        "200":
+          description: 正常に取得できた場合
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: 企業が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    patch:
+      tags:
+        - Companies
+      summary: 企業情報の更新
+      security:
+        - Bearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "企業ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: object
+                  properties:
+                    company_name:
+                      type: string
+                      description: "会社名"
+                    phone_number:
+                      type: string
+                      description: "電話番号"
+                    subdomain:
+                      type: string
+                      description: "サブドメイン"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: 企業が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      company_name:
+                        type: array
+                        items:
+                          type: string
+                      phone_number:
+                        type: array
+                        items:
+                          type: string
+                      subdomain:
+                        type: array
+                        items:
+                          type: string
