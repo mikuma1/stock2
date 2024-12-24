@@ -90,7 +90,9 @@ RSpec.configure do |config|
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
 
-  config.before do
-    I18n.locale = :ja
+  config.around do |example|
+    I18n.with_locale(:ja) do
+      example.run
+    end
   end
 end
