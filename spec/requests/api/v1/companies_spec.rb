@@ -14,7 +14,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       it '企業一覧を取得できること' do
         get api_v1_companies_path
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body).size).to eq 3
+        expect(JSON.parse(response.body).size).to eq 4
       end
     end
   end
