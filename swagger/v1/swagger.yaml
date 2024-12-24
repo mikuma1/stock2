@@ -7,8 +7,6 @@ info:
 servers:
   - url: http://localhost:3000
     description: 開発環境
-  - url: https://api.example.com
-    description: 本番環境
 
 components:
   securitySchemes:
@@ -16,3 +14,39 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        company_name:
+          type: string
+        phone_number:
+          type: string
+        subdomain:
+          type: string
+      required:
+        - company_name
+        - phone_number
+        - subdomain
+
+paths:
+  /api/v1/companies:
+    get:
+      tags:
+        - Companies
+      summary: 企業一覧の取得
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: 正常に取得できた場合
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Company"
+        "401":
+          description: 認証エラー
