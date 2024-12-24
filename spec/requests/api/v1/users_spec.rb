@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Users', type: :request do
   let(:company) { create(:company) }
+  let(:admin) { create(:user, :admin, company: company) }
   let(:user) { create(:user, company: company) }
   
   describe 'GET /api/v1/companies/:company_id/users' do
@@ -15,7 +16,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it 'ユーザー一覧を取得できること' do
         get api_v1_company_users_path(company)
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body).size).to eq 4  # 自分も含めて4人
+        expect(JSON.parse(response.body).size).to eq 4
       end
     end
   end
@@ -46,8 +47,6 @@ RSpec.describe 'Api::V1::Users', type: :request do
     end
 
     context '認証済み管理者の場合' do
-      let(:admin) { create(:user, :admin, company: company) }
-      
       before do
         sign_in admin
       end
@@ -73,6 +72,20 @@ RSpec.describe 'Api::V1::Users', type: :request do
         end
       end
     end
+
+    context '認証済み一般ユーザーの場合' do
+      before do
+        sign_in user
+      end
+
+      it 'ユーザーを作成できないこと' do
+        expect {
+          post api_v1_company_users_path(company), params: valid_params
+        }.not_to change(User, :count)
+        
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 
   describe 'PATCH /api/v1/companies/:company_id/users/:id' do
@@ -86,8 +99,6 @@ RSpec.describe 'Api::V1::Users', type: :request do
     end
 
     context '認証済み管理者の場合' do
-      let(:admin) { create(:user, :admin, company: company) }
-      
       before do
         sign_in admin
       end
@@ -106,6 +117,18 @@ RSpec.describe 'Api::V1::Users', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
           expect(target_user.reload.email).not_to be_nil
         end
+      end
+    end
+
+    context '認証済み一般ユーザーの場合' do
+      before do
+        sign_in user
+      end
+
+      it 'ユーザー情報を更新できないこと' do
+        patch api_v1_company_user_path(company, target_user), params: valid_params
+        expect(response).to have_http_status(:forbidden)
+        expect(target_user.reload.email).not_to eq 'updated@example.com'
       end
     end
   end

@@ -6,7 +6,7 @@ module Api
       before_action :authorize_admin!, only: [:create, :update]
 
       def index
-        users = @company.users
+        users = @company.users.includes(:company)
         render_success(users)
       end
 

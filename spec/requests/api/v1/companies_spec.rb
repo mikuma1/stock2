@@ -1,8 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Companies', type: :request do
-  let(:user) { create(:user) }
-  
+  let(:company) { create(:company) }
+  let(:admin) { create(:user, :admin, company: company) }
+  let(:user) { create(:user, company: company) }
+
   describe 'GET /api/v1/companies' do
     let!(:companies) { create_list(:company, 3) }
 
@@ -20,8 +22,6 @@ RSpec.describe 'Api::V1::Companies', type: :request do
   end
 
   describe 'GET /api/v1/companies/:id' do
-    let!(:company) { create(:company) }
-
     context '認証済みユーザーの場合' do
       before do
         sign_in user
@@ -46,9 +46,9 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       }
     end
 
-    context '認証済みユーザーの場合' do
+    context '認証済み管理者の場合' do  # 管理者としてテスト
       before do
-        sign_in user
+        sign_in admin
       end
 
       context '有効なパラメータの場合' do
@@ -72,10 +72,23 @@ RSpec.describe 'Api::V1::Companies', type: :request do
         end
       end
     end
+
+    context '認証済み一般ユーザーの場合' do  # 一般ユーザーとしてテスト
+      before do
+        sign_in user
+      end
+
+      it '企業を作成できないこと' do
+        expect {
+          post api_v1_companies_path, params: valid_params
+        }.not_to change(Company, :count)
+        
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 
   describe 'PATCH /api/v1/companies/:id' do
-    let!(:company) { create(:company) }
     let(:valid_params) do
       {
         company: {
@@ -84,9 +97,9 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       }
     end
 
-    context '認証済みユーザーの場合' do
+    context '認証済み管理者の場合' do  # 管理者としてテスト
       before do
-        sign_in user
+        sign_in admin
       end
 
       context '有効なパラメータの場合' do
@@ -103,6 +116,18 @@ RSpec.describe 'Api::V1::Companies', type: :request do
           expect(response).to have_http_status(:unprocessable_entity)
           expect(company.reload.company_name).not_to be_nil
         end
+      end
+    end
+
+    context '認証済み一般ユーザーの場合' do  # 一般ユーザーとしてテスト
+      before do
+        sign_in user
+      end
+
+      it '企業情報を更新できないこと' do
+        patch api_v1_company_path(company), params: valid_params
+        expect(response).to have_http_status(:forbidden)
+        expect(company.reload.company_name).not_to eq '株式会社更新テスト'
       end
     end
   end
