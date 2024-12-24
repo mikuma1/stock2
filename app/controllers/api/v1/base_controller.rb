@@ -15,10 +15,10 @@ module Api
       end
 
       def authorize_admin!
-        unless current_user.admin?
-          render_error('管理者権限が必要です', :forbidden)
-        end
+        return if current_user.admin?
+
+        render_error('管理者権限が必要です', :forbidden)
       end
     end
   end
-end 
+end

@@ -5,4 +5,4 @@ FactoryBot.define do
     phone_number { Faker::PhoneNumber.phone_number }
     subdomain { Faker::Internet.unique.domain_word }
   end
-end 
+end

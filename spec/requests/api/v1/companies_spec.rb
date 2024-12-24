@@ -16,7 +16,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       it '企業一覧を取得できること' do
         get api_v1_companies_path
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body).size).to eq 4
+        expect(response.parsed_body.size).to eq 4
       end
     end
   end
@@ -30,7 +30,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       it '指定した企業の情報を取得できること' do
         get api_v1_company_path(company)
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['company_name']).to eq company.company_name
+        expect(response.parsed_body['company_name']).to eq company.company_name
       end
     end
   end
@@ -46,43 +46,43 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       }
     end
 
-    context '認証済み管理者の場合' do  # 管理者としてテスト
+    context '認証済み管理者の場合' do # 管理者としてテスト
       before do
         sign_in admin
       end
 
       context '有効なパラメータの場合' do
         it '企業を作成できること' do
-          expect {
+          expect do
             post api_v1_companies_path, params: valid_params
-          }.to change(Company, :count).by(1)
-          
+          end.to change(Company, :count).by(1)
+
           expect(response).to have_http_status(:created)
-          expect(JSON.parse(response.body)['company_name']).to eq '株式会社テスト'
+          expect(response.parsed_body['company_name']).to eq '株式会社テスト'
         end
       end
 
       context '無効なパラメータの場合' do
         it '企業を作成できないこと' do
-          expect {
+          expect do
             post api_v1_companies_path, params: { company: { company_name: nil } }
-          }.not_to change(Company, :count)
-          
+          end.not_to change(Company, :count)
+
           expect(response).to have_http_status(:unprocessable_entity)
         end
       end
     end
 
-    context '認証済み一般ユーザーの場合' do  # 一般ユーザーとしてテスト
+    context '認証済み一般ユーザーの場合' do # 一般ユーザーとしてテスト
       before do
         sign_in user
       end
 
       it '企業を作成できないこと' do
-        expect {
+        expect do
           post api_v1_companies_path, params: valid_params
-        }.not_to change(Company, :count)
-        
+        end.not_to change(Company, :count)
+
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -97,7 +97,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       }
     end
 
-    context '認証済み管理者の場合' do  # 管理者としてテスト
+    context '認証済み管理者の場合' do # 管理者としてテスト
       before do
         sign_in admin
       end
@@ -119,7 +119,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       end
     end
 
-    context '認証済み一般ユーザーの場合' do  # 一般ユーザーとしてテスト
+    context '認証済み一般ユーザーの場合' do # 一般ユーザーとしてテスト
       before do
         sign_in user
       end
@@ -131,4 +131,4 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       end
     end
   end
-end 
+end
