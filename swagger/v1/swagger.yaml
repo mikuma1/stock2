@@ -2,11 +2,18 @@ openapi: 3.0.1
 info:
   title: Stock2 API
   version: "v1"
-  description: "Stock2のAPI仕様書"
+  description: |
+    Stock2のAPI仕様書
+
+    ## 認証について
+    すべてのAPIリクエストにはJWTトークンが必要です。
+    トークンは `Authorization` ヘッダーに `Bearer <token>` の形式で指定してください。
 
 servers:
   - url: http://localhost:3000
     description: 開発環境
+  - url: https://api.example.com
+    description: 本番環境
 
 components:
   securitySchemes:
@@ -14,22 +21,111 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: |
+        JWTを使用した認証を行います。
+        ログイン時に取得したトークンを使用してください。
+
   schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: エラーメッセージ
+        code:
+          type: string
+          description: エラーコード
+          enum:
+            - unauthorized
+            - forbidden
+            - not_found
+            - unprocessable_entity
+      example:
+        error: "認証に失敗しました"
+        code: "unauthorized"
+
+    ValidationError:
+      type: object
+      properties:
+        errors:
+          type: object
+          description: フィールドごとのエラーメッセージ
+          additionalProperties:
+            type: array
+            items:
+              type: string
+      example:
+        errors:
+          email: ["既に存在します", "不正な形式です"]
+          name: ["を入力してください"]
+
     Company:
       type: object
       properties:
         id:
           type: integer
+          description: "企業ID（自動採番）"
         company_name:
           type: string
+          description: "会社名（例：株式会社テスト）"
+          minLength: 1
+          maxLength: 255
         phone_number:
           type: string
+          description: "電話番号（例：03-1234-5678）"
+          pattern: '^\d{2,4}-\d{2,4}-\d{4}$'
         subdomain:
           type: string
+          description: "サブドメイン（例：test-company）"
+          pattern: "^[a-z0-9-]+$"
+          minLength: 3
+          maxLength: 63
       required:
         - company_name
         - phone_number
         - subdomain
+      example:
+        id: 1
+        company_name: "株式会社テスト"
+        phone_number: "03-1234-5678"
+        subdomain: "test-company"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "ユーザーID（自動採番）"
+        email:
+          type: string
+          description: "メールアドレス（例：user@example.com）"
+          format: email
+        name:
+          type: string
+          description: "名前（例：山田太郎）"
+          minLength: 1
+          maxLength: 255
+        role:
+          type: string
+          enum: ["admin", "user"]
+          description: |
+            ユーザーの役割
+            * admin - 管理者（企業の管理が可能）
+            * user - 一般ユーザー
+        company_id:
+          type: integer
+          description: "所属企業のID"
+      required:
+        - email
+        - name
+        - role
+        - company_id
+      example:
+        id: 1
+        email: "user@example.com"
+        name: "山田太郎"
+        role: "user"
+        company_id: 1
 
 paths:
   /api/v1/companies:
@@ -50,6 +146,10 @@ paths:
                   $ref: "#/components/schemas/Company"
         "401":
           description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
     post:
       tags:
@@ -218,20 +318,226 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  errors:
-                    type: object
-                    properties:
-                      company_name:
-                        type: array
-                        items:
-                          type: string
-                      phone_number:
-                        type: array
-                        items:
-                          type: string
-                      subdomain:
-                        type: array
-                        items:
-                          type: string
+                $ref: "#/components/schemas/ValidationError"
+
+  /api/v1/companies/{company_id}/users:
+    get:
+      tags:
+        - Users
+      summary: ユーザー一覧の取得
+      security:
+        - Bearer: []
+      parameters:
+        - name: company_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "企業ID"
+      responses:
+        "200":
+          description: 正常に取得できた場合
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: 企業が見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      tags:
+        - Users
+      summary: ユーザーの新規作成
+      security:
+        - Bearer: []
+      parameters:
+        - name: company_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: "企業ID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: "メールアドレス"
+                      format: email
+                    name:
+                      type: string
+                      description: "名前"
+                    role:
+                      type: string
+                      enum: ["admin", "user"]
+                      description: "ユーザーの役割"
+                    password:
+                      type: string
+                      description: "パスワード"
+                      format: password
+                    password_confirmation:
+                      type: string
+                      description: "パスワード（確認用）"
+                      format: password
+                  required:
+                    - email
+                    - name
+                    - role
+                    - password
+                    - password_confirmation
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+
+  /api/v1/companies/{company_id}/users/{id}:
+    parameters:
+      - name: company_id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: "企業ID"
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: "ユーザーID"
+
+    get:
+      tags:
+        - Users
+      summary: ユーザーの詳細情報を取得
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: 正常に取得できた場合
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: ユーザーが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    patch:
+      tags:
+        - Users
+      summary: ユーザー情報の更新
+      security:
+        - Bearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      description: "メールアドレス"
+                      format: email
+                    name:
+                      type: string
+                      description: "名前"
+                    role:
+                      type: string
+                      enum: ["admin", "user"]
+                      description: "ユーザーの役割"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: ユーザーが見つからない
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
