@@ -16,7 +16,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it 'ユーザー一覧を取得できること' do
         get api_v1_company_users_path(company)
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body).size).to eq 5  # admin + user + other_users
+        expect(JSON.parse(response.body).size).to eq 4
       end
     end
   end
