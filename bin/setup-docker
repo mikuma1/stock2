@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+
+# コンテナのビルド
+docker-compose build
+
+# 依存関係のインストール
+docker-compose run --rm web bundle install
+
+# データベースのセットアップ
+docker-compose run --rm web rails db:create
+docker-compose run --rm web rails db:migrate 
