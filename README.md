@@ -67,3 +67,50 @@ git push origin feature/new-feature
 
 ## APIドキュメント
 ※ 別途作成予定
+
+## 本番環境
+
+### 環境構築
+
+1. 本番環境の起動
+
+```bash
+docker-compose -f docker-compose.production.yml up -d
+```
+
+2. データベースのセットアップ
+
+```bash
+docker-compose -f docker-compose.production.yml exec web rails db:create db:migrate
+```
+
+### 本番環境の特徴
+
+- 開発/テスト用のgemを除外
+- アセットのプリコンパイル
+- ヘルスチェックの実装
+- 静的ファイルの配信設定
+
+### 環境変数
+
+本番環境では以下の環境変数を設定する必要があります：
+
+- `RAILS_MASTER_KEY`: Rails暗号化キー
+- `DATABASE_URL`: データベース接続情報
+- `RAILS_ENV`: production
+- `RAILS_SERVE_STATIC_FILES`: true
+- `RAILS_LOG_TO_STDOUT`: true
+
+### デプロイ時の注意点
+
+1. セキュリティ
+   - 本番環境では必ず`RAILS_MASTER_KEY`を設定
+   - データベースのパスワードは環境変数で管理
+
+2. パフォーマンス
+   - アセットのプリコンパイルは事前に実行
+   - 必要に応じてNginxなどのリバースプロキシを設定
+
+3. 監視
+   - ヘルスチェックエンドポイントでアプリケーションの状態を監視
+   - ログは標準出力に出力され、コンテナログとして収集可能
