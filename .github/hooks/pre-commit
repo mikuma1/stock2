@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo "Running pre-commit hooks..."
+
+# Rubocopによるコードチェック
+echo "Running Rubocop..."
+./bin/docker-rubocop
+
+if [ $? -ne 0 ]; then
+  echo "Rubocop failed! Commit aborted."
+  exit 1
+fi
+
+# RSpecテストの実行
+echo "Running RSpec..."
+./bin/docker-test
+
+if [ $? -ne 0 ]; then
+  echo "Tests failed! Commit aborted."
+  exit 1
+fi
+
+echo "All pre-commit hooks passed!"
+exit 0

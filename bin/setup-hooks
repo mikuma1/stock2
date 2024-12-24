@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Git hooksのパスを設定
+HOOK_DIR=.git/hooks
+CUSTOM_HOOK_DIR=.github/hooks
+
+# pre-commitフックをインストール
+echo "Installing git hooks..."
+ln -sf ../../.github/hooks/pre-commit $HOOK_DIR/pre-commit
+chmod +x $HOOK_DIR/pre-commit
+
+echo "Git hooks installed successfully!"
