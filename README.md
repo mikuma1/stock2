@@ -1,24 +1,59 @@
-# README
+# Stock2
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## 環境
+- Ruby 3.2.2
+- Rails 7.0
+- PostgreSQL 14
 
-Things you may want to cover:
+## セットアップ
+### 開発環境のセットアップ（Docker）
 
-* Ruby version
+1. リポジトリのクローン
+```bash
+git clone git@github.com:yourusername/stock2.git
+cd stock2
+```
+2. 開発環境の構築
+```bash
+./bin/setup-docker
+```
+3. アプリケーションの起動
+```bash
+docker-compose up
+```
+アプリケーションは http://localhost:3000 でアクセスできます。
 
-* System dependencies
+### テストの実行
+```bash
+# RSpecテストの実行
+./bin/docker-test
+# Rubocopの実行
+./bin/docker-rubocop
+```
 
-* Configuration
+## GitHub Actions
 
-* Database creation
+以下のチェックが自動的に実行されます：
 
-* Database initialization
+- PRとpush時：
+  - RSpecテスト
+  - Rubocopによるコードチェック
 
-* How to run the test suite
+## 開発フロー
 
-* Services (job queues, cache servers, search engines, etc.)
+1. 新機能の開発
+```bash
+# 新しいブランチを作成
+git checkout -b feature/new-feature
+# 開発とテスト
+./bin/docker-test
+./bin/docker-rubocop
+# 変更をコミット
+git add .
+git commit -m "feat: 新機能を追加"
+# プルリクエストを作成
+git push origin feature/new-feature
+```
 
-* Deployment instructions
-
-* ...
+## APIドキュメント
+※ 別途作成予定
