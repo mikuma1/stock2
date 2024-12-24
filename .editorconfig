@@ -1,0 +1,28 @@
+# トップレベルのEditorConfig設定
+root = true
+
+# 全てのファイルに適用
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Ruby関連ファイル
+[*.{rb,rake,gemspec}]
+indent_style = space
+indent_size = 2
+
+# YAML設定ファイル
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# シェルスクリプト
+[*.sh]
+indent_style = space
+indent_size = 2
