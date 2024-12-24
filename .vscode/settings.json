@@ -6,13 +6,14 @@
   "files.trimFinalNewlines": true,
   "[ruby]": {
     "editor.tabSize": 2,
-    "editor.defaultFormatter": "rebornix.ruby"
+    "editor.defaultFormatter": "Shopify.ruby-lsp"
   },
-  "ruby.format": "rubocop",
-  "ruby.lint": {
-    "rubocop": true
-  },
-  "ruby.useBundler": true,
-  "ruby.useLanguageServer": true,
-  "ruby.intellisense": "rubyLocate"
+  "rubyLsp.formatter": "rubocop",
+  "rubyLsp.enabledFeatures": {
+    "formatting": true,
+    "diagnostics": true,
+    "documentSymbols": true,
+    "documentHighlights": true,
+    "semanticHighlighting": true
+  }
 }
