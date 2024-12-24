@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    environment:
+      - RAILS_ENV=production
+      - RAILS_SERVE_STATIC_FILES=true
+      - RAILS_LOG_TO_STDOUT=true
+      - DATABASE_URL=postgres://postgres:password@db:5432/stock2_production
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
