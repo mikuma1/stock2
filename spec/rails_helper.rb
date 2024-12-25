@@ -52,11 +52,3 @@ RSpec.configure do |config|
   # FactoryBotのメソッドを直接使用可能にする
   config.include FactoryBot::Syntax::Methods
 end
-
-# Shoulda Matchersの設定
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :rspec
-    with.library :rails
-  end
-end
