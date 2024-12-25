@@ -10,6 +10,10 @@ class User < ApplicationRecord
   validates :role, presence: true
   validates :department, presence: true, if: :require_department?
 
+  def admin?
+    role == 'admin'
+  end
+
   private
 
   def require_department?
