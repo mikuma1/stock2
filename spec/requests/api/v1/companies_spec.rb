@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Companies', type: :request do
+  before do
+    host! 'localhost'
+  end
+
   let(:company) { create(:company) }
   let(:admin) { create(:user, :admin, company: company) }
   let(:user) { create(:user, company: company) }
@@ -16,7 +20,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       it '企業一覧を取得できること' do
         get api_v1_companies_path
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.size).to eq 4
+        expect(response.parsed_body.size).to eq 5
       end
     end
   end
