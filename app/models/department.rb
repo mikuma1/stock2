@@ -15,8 +15,8 @@ class Department < ApplicationRecord
   private
 
   def ensure_no_users_before_destroy
-    if users.exists?
-      errors.add(:base, 'ユーザーが所属している部署は削除できません')
-    end
+    return unless users.exists?
+
+    errors.add(:base, 'ユーザーが所属している部署は削除できません')
   end
 end

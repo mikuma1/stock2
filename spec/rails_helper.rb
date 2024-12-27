@@ -61,8 +61,9 @@ RSpec.configure do |config|
   # FactoryBotのメソッドを直接使用可能にする
   config.include FactoryBot::Syntax::Methods
 
-  config.before(:each, type: :request) do
-    Rails.logger = Logger.new($stdout)
-    Rails.logger.level = :debug
-  end
+  # ログレベルを:debugに設定
+  # config.before(:each, type: :request) do
+  #   Rails.logger = Logger.new($stdout)
+  #   Rails.logger.level = :debug
+  # end
 end

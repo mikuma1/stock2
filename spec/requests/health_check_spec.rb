@@ -6,7 +6,7 @@ RSpec.describe 'HealthCheck', type: :request do
       it '200 OKを返すこと' do
         get '/health'
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq({ 'status' => 'ok' })
+        expect(response.parsed_body).to eq({ 'status' => 'ok' })
       end
     end
 
@@ -18,7 +18,7 @@ RSpec.describe 'HealthCheck', type: :request do
       it '503 Service Unavailableを返すこと' do
         get '/health'
         expect(response).to have_http_status(:service_unavailable)
-        expect(JSON.parse(response.body)['status']).to eq('error')
+        expect(response.parsed_body['status']).to eq('error')
       end
     end
   end
