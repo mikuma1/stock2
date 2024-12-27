@@ -45,7 +45,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_25_145728) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "department_id"
-    t.string "name"
+    t.string "name", default: "", null: false
     t.index ["company_id"], name: "index_users_on_company_id"
     t.index ["department_id"], name: "index_users_on_department_id"
     t.index ["email"], name: "index_users_on_email", unique: true
