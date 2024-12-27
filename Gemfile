@@ -29,6 +29,7 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
+  gem 'pry-byebug'
 end
 
 group :development do

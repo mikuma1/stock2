@@ -6,13 +6,13 @@ AllCops:
   NewCops: enable
   TargetRubyVersion: 3.2
   Exclude:
-    - 'db/**/*'
-    - 'config/**/*'
-    - 'script/**/*'
-    - 'bin/**/*'
-    - 'vendor/**/*'
-    - 'tmp/**/*'
-    - 'node_modules/**/*'
+    - "db/**/*"
+    - "config/**/*"
+    - "script/**/*"
+    - "bin/**/*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+    - "node_modules/**/*"
 
 Style/Documentation:
   Enabled: false
@@ -37,7 +37,7 @@ RSpec/LetSetup:
 
 Metrics/BlockLength:
   Exclude:
-    - 'spec/**/*'
+    - "spec/**/*"
 
 Metrics/MethodLength:
   Max: 20
@@ -46,4 +46,10 @@ Metrics/AbcSize:
   Max: 20
 
 Layout/LineLength:
-  Max: 160 
+  Max: 160
+
+Rails/EnumHash:
+  Enabled: true
+
+Rails/EnumSyntax:
+  Enabled: false
