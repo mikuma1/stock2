@@ -21,7 +21,6 @@ gem 'rails-i18n'
 # PostgreSQLアダプター
 gem 'pg'
 
-
 gem 'rswag-api'
 gem 'rswag-ui'
 
