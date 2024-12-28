@@ -15,11 +15,12 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_28_141233) do
   enable_extension "plpgsql"
 
   create_table "categories", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.text "description"
     t.bigint "company_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["company_id", "name"], name: "index_categories_on_company_id_and_name", unique: true
     t.index ["company_id"], name: "index_categories_on_company_id"
   end
 
