@@ -3,12 +3,10 @@ class Item < ApplicationRecord
   belongs_to :company
   has_many :stocks, dependent: :destroy
 
-  # rubocop:disable Rails/UniqueValidationWithoutIndex
   validates :name,
             presence: true,
             uniqueness: { scope: :company_id },
             length: { maximum: 100 }
-  # rubocop:enable Rails/UniqueValidationWithoutIndex
   validates :minimum_quantity,
             numericality: { greater_than_or_equal_to: 0 },
             allow_nil: true
