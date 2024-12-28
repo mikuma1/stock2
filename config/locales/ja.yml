@@ -1,31 +1,50 @@
 ja:
-  errors:
-    messages:
-      unexpected_error: "予期せぬエラーが発生しました"
-      admin_required: "管理者権限が必要です"
-  departments:
-    destroy:
-      errors:
-        users_exist: "所属しているユーザーが存在するため削除できません"
   activerecord:
     models:
       item: "消耗品"
+      category: "カテゴリ"
     attributes:
       item:
         name: "消耗品名"
         description: "説明"
         minimum_quantity: "最小在庫数"
-        current_stock: "現在の在庫数"
         unit: "単位"
         url: "購入URL"
         purchase_notes: "購入時の注意事項"
         category_id: "カテゴリ"
     errors:
+      messages:
+        record_invalid: "バリデーションに失敗しました: %{errors}"
+        restrict_dependent_destroy:
+          has_many: "関連する%{record}が存在するため削除できません"
+        taken: "は既に使用されています"
       models:
         item:
           attributes:
             name:
-              taken: "は既に使用されています"
               blank: "を入力してください"
             category_id:
               blank: "を選択してください"
+        company:
+          attributes:
+            subdomain:
+              invalid_format: "は半角英数字とハイフンのみ使用できます"
+        category:
+          attributes:
+            base:
+              restrict_dependent_destroy:
+                has_many: "関連する消耗品が存在するため削除できません"
+        item:
+          one: "消耗品"
+          other: "消耗品"
+
+  errors:
+    messages:
+      unexpected_error: "予期せぬエラーが発生しました"
+      admin_required: "管理者権限が必要です"
+      invalid_subdomain_format: "は半角英数字とハイフンのみ使用できます"
+
+  departments:
+    destroy:
+      errors:
+        users_exist: "所属しているユーザーが存在するため削除できません"
