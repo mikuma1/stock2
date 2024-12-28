@@ -14,5 +14,4 @@ class Item < ApplicationRecord
   validates :purchase_notes, length: { maximum: 1000 }
 
   scope :sorted, -> { order(:name) }
-  scope :low_stock, -> { where('minimum_quantity >= current_stock') }
 end
