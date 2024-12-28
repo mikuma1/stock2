@@ -21,6 +21,10 @@ gem 'rails-i18n'
 # PostgreSQLアダプター
 gem 'pg'
 
+
+gem 'rswag-api'
+gem 'rswag-ui'
+
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_bot_rails'
@@ -34,8 +38,6 @@ end
 
 group :development do
   gem 'listen', '~> 3.2'
-  gem 'rswag-api'
-  gem 'rswag-ui'
   gem 'web-console', '>= 3.3.0'
 end
 
