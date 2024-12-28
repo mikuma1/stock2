@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_28_170243) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_28_173850) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -60,6 +60,23 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_28_170243) do
     t.index ["name", "company_id"], name: "index_items_on_name_and_company_id", unique: true
   end
 
+  create_table "stocks", force: :cascade do |t|
+    t.bigint "item_id", null: false
+    t.bigint "company_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "quantity", null: false
+    t.integer "operation_type", default: 0, null: false
+    t.text "note"
+    t.datetime "operated_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "operated_at"], name: "index_stocks_on_company_id_and_operated_at"
+    t.index ["company_id"], name: "index_stocks_on_company_id"
+    t.index ["item_id", "operated_at"], name: "index_stocks_on_item_id_and_operated_at"
+    t.index ["item_id"], name: "index_stocks_on_item_id"
+    t.index ["user_id"], name: "index_stocks_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -82,6 +99,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_28_170243) do
   add_foreign_key "departments", "companies"
   add_foreign_key "items", "categories"
   add_foreign_key "items", "companies"
+  add_foreign_key "stocks", "companies"
+  add_foreign_key "stocks", "items"
+  add_foreign_key "stocks", "users"
   add_foreign_key "users", "companies"
   add_foreign_key "users", "departments"
 end
