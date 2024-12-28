@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Company Management API
+  title: 企業管理API
   version: v1
   description: |
     Company Management System API documentation
@@ -34,7 +34,7 @@ components:
       name: company_id
       in: path
       required: true
-      description: 会社ID
+      description: 企業ID
       schema:
         type: integer
         minimum: 1
@@ -95,7 +95,7 @@ components:
           maxLength: 500
         company_id:
           type: integer
-          description: 所属会社ID
+          description: 所属企業ID
         created_at:
           type: string
           format: date-time
@@ -136,16 +136,16 @@ components:
           items:
             type: string
 
-    # 会社のスキーマ
+    # 企業のスキーマ
     Company:
       type: object
       properties:
         id:
           type: integer
-          description: 会社ID
+          description: 企業ID
         company_name:
           type: string
-          description: 会社名
+          description: 企業名
         address:
           type: string
           description: 住所
@@ -174,7 +174,7 @@ components:
           properties:
             company_name:
               type: string
-              description: 会社名
+              description: 企業名
             address:
               type: string
               description: 住所
@@ -208,7 +208,7 @@ components:
           description: ユーザー権限
         company_id:
           type: integer
-          description: 所属会社ID
+          description: 所属企業ID
         department_id:
           type: integer
           description: 所属部署ID
@@ -263,7 +263,7 @@ paths:
         - Departments
       summary: 部署一覧の取得
       description: |
-        指定した会社の部署一覧を取得します。
+        指定した企業の部署一覧を取得します。
         管理者のみがアクセス可能です。
       security:
         - bearer_auth: []
@@ -293,7 +293,7 @@ paths:
       description: |
         新しい部署を作成します。
         - 管理者のみが実行可能です
-        - 部署名は会社内で一意である必要が��ります
+        - 部署名は企業内で一意である必要がります
         - 部署名は50文字以内です
       security:
         - bearer_auth: []
@@ -348,7 +348,7 @@ paths:
       description: |
         部署の情報を更新します。
         - 管理者のみが実行可能です
-        - 部署名は会社内で一意である必要があります
+        - 部署名は企業内で一意である必要があります
         - 部署名は50文字以内です
       security:
         - bearer_auth: []
@@ -390,18 +390,18 @@ paths:
               example:
                 errors: ["所属しているユーザーが存在するため削除できません"]
 
-  # 会社関連のエンドポイント
+  # 企業関連のエンドポイント
   /api/v1/companies:
     get:
       tags:
         - Companies
-      summary: 会社一覧の取得
-      description: 全ての会社の一覧を取得します
+      summary: 企業一覧の取得
+      description: 全ての企業の一覧を取得します
       security:
         - bearer_auth: []
       responses:
         "200":
-          description: 会社一覧の取得に成功
+          description: 企業一覧の取得に成功
           content:
             application/json:
               schema:
@@ -412,9 +412,9 @@ paths:
     post:
       tags:
         - Companies
-      summary: 会社の新規作成
+      summary: 企業の新規作成
       description: |
-        新しい会社を作成します。
+        新しい企業を作成します。
         - 管理者のみが実行可能です
         - サブドメインは一意である必要があります
       security:
@@ -427,7 +427,7 @@ paths:
               $ref: "#/components/schemas/CompanyInput"
       responses:
         "201":
-          description: 会社の作成に成功
+          description: 企業の作成に成功
           content:
             application/json:
               schema:
@@ -440,7 +440,7 @@ paths:
       - name: id
         in: path
         required: true
-        description: 会社ID
+        description: 企業ID
         schema:
           type: integer
           minimum: 1
@@ -448,12 +448,12 @@ paths:
     get:
       tags:
         - Companies
-      summary: 会社詳細の取得
+      summary: 企業詳細の取得
       security:
         - bearer_auth: []
       responses:
         "200":
-          description: 会社詳細の取得に成功
+          description: 企業詳細の取得に成功
           content:
             application/json:
               schema:
@@ -464,9 +464,9 @@ paths:
     patch:
       tags:
         - Companies
-      summary: 会社情報の更新
+      summary: 企業情報の更新
       description: |
-        会社の情報を更新します。
+        企業の情報を更新します。
         - 管理者のみが実行可能です
       security:
         - bearer_auth: []
@@ -478,7 +478,7 @@ paths:
               $ref: "#/components/schemas/CompanyInput"
       responses:
         "200":
-          description: 会社情報の更新に成功
+          description: 企業情報の更新に成功
           content:
             application/json:
               schema:
@@ -495,7 +495,7 @@ paths:
       tags:
         - Users
       summary: ユーザー一覧の取得
-      description: 指定した会社のユーザー一覧を取得します
+      description: 指定した企業のユーザー一覧を取得します
       security:
         - bearer_auth: []
       responses:
