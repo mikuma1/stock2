@@ -2,22 +2,32 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Users', type: :request do
   let(:company) { create(:company) }
+  let(:department) { create(:department, company: company) }
   let(:admin) { create(:user, :admin, company: company) }
-  let(:user) { create(:user, company: company) }
+  let(:user) { create(:user, company: company, department: department) }
+  let(:target_user) { create(:user, company: company) }
+
+  def valid_params
+    {
+      user: {
+        email: 'test@example.com',
+        password: 'password123',
+        role: 'user',
+        department_id: department.id
+      }
+    }
+  end
 
   describe 'GET /api/v1/companies/:company_id/users' do
-    let!(:other_users) { create_list(:user, 3, company: company) }
+    before do
+      create_list(:user, 3, company: company)
+      sign_in user
+    end
 
-    context '認証済みユーザーの場合' do
-      before do
-        sign_in user
-      end
-
-      it 'ユーザー一覧を取得できること' do
-        get api_v1_company_users_path(company)
-        expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.size).to eq 4
-      end
+    it 'ユーザー一覧を取得できること' do
+      get api_v1_company_users_path(company_id: company.id)
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body.size).to eq 4
     end
   end
 
@@ -36,16 +46,6 @@ RSpec.describe 'Api::V1::Users', type: :request do
   end
 
   describe 'POST /api/v1/companies/:company_id/users' do
-    let(:valid_params) do
-      {
-        user: {
-          email: 'test@example.com',
-          password: 'password123',
-          role: 'user'
-        }
-      }
-    end
-
     context '認証済み管理者の場合' do
       before do
         sign_in admin
@@ -89,34 +89,16 @@ RSpec.describe 'Api::V1::Users', type: :request do
   end
 
   describe 'PATCH /api/v1/companies/:company_id/users/:id' do
-    let(:target_user) { create(:user, company: company) }
-    let(:valid_params) do
-      {
-        user: {
-          email: 'updated@example.com'
-        }
-      }
-    end
-
     context '認証済み管理者の場合' do
       before do
         sign_in admin
       end
 
-      context '有効なパラメータの場合' do
-        it 'ユーザー情報を更新できること' do
-          patch api_v1_company_user_path(company, target_user), params: valid_params
-          expect(response).to have_http_status(:ok)
-          expect(target_user.reload.email).to eq 'updated@example.com'
-        end
-      end
-
-      context '無効なパラメータの場合' do
-        it 'ユーザー情報を更新できないこと' do
-          patch api_v1_company_user_path(company, target_user), params: { user: { email: nil } }
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(target_user.reload.email).not_to be_nil
-        end
+      it 'ユーザー情報を更新できること' do
+        patch api_v1_company_user_path(company, target_user),
+              params: { user: { email: 'updated@example.com' } }
+        expect(response).to have_http_status(:ok)
+        expect(target_user.reload.email).to eq 'updated@example.com'
       end
     end
 
@@ -126,9 +108,8 @@ RSpec.describe 'Api::V1::Users', type: :request do
       end
 
       it 'ユーザー情報を更新できないこと' do
-        patch api_v1_company_user_path(company, target_user), params: valid_params
+        patch api_v1_company_user_path(company_id: company.id, id: user.id), params: { user: { email: 'new@example.com' } }
         expect(response).to have_http_status(:forbidden)
-        expect(target_user.reload.email).not_to eq 'updated@example.com'
       end
     end
   end

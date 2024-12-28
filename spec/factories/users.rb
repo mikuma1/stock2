@@ -1,12 +1,14 @@
 FactoryBot.define do
   factory :user do
-    email { Faker::Internet.unique.email }
-    password { 'password123' }
-    role { 1 }
+    sequence(:email) { |n| "user#{n}@example.com" }
+    password { 'password' }
+    role { :user }
     association :company
+    association :department
 
     trait :admin do
-      role { 0 }
+      role { :admin }
+      department { nil }
     end
   end
 end

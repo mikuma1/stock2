@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => '/api-docs'
+  mount Rswag::Api::Engine => '/api-docs'
   devise_for :users
 
   get 'health', to: 'health_check#index'
@@ -6,6 +8,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :companies, only: [:index, :show, :create, :update] do
+        resources :departments, only: [:index, :show, :create, :update, :destroy]
         resources :users, only: [:index, :show, :create, :update]
       end
     end

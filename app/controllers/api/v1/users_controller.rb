@@ -6,7 +6,7 @@ module Api
       before_action :authorize_admin!, only: %i[create update]
 
       def index
-        users = @company.users.includes(:company)
+        users = @company.users.includes(:department)
         render_success(users)
       end
 
@@ -19,6 +19,7 @@ module Api
         if user.save
           render_success(user, :created)
         else
+          Rails.logger.error("User creation failed: #{user.errors.full_messages}")
           render_error(user.errors.full_messages)
         end
       end
@@ -27,6 +28,7 @@ module Api
         if @user.update(user_params)
           render_success(@user)
         else
+          Rails.logger.error("User update failed: #{@user.errors.full_messages}")
           render_error(@user.errors.full_messages)
         end
       end
@@ -42,13 +44,7 @@ module Api
       end
 
       def user_params
-        params.require(:user).permit(:email, :password, :role)
-      end
-
-      def authorize_admin!
-        return if current_user.admin?
-
-        render_error('管理者権限が必要です', :forbidden)
+        params.require(:user).permit(:email, :password, :role, :department_id)
       end
     end
   end

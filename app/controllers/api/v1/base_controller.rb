@@ -1,7 +1,8 @@
 module Api
   module V1
-    class BaseController < ApplicationController
-      protect_from_forgery with: :null_session
+    class BaseController < ActionController::API
+      include Devise::Controllers::Helpers
+
       before_action :authenticate_user!
 
       private
@@ -11,13 +12,17 @@ module Api
       end
 
       def render_error(message, status = :unprocessable_entity)
-        render json: { errors: Array(message) }, status: status
+        render json: { error: message }, status: status
       end
 
       def authorize_admin!
-        return if current_user.admin?
+        return if current_user&.admin?
 
-        render_error('管理者権限が必要です', :forbidden)
+        render_error(I18n.t('errors.messages.admin_required'), :forbidden)
+      end
+
+      def current_company
+        current_user&.company
       end
     end
   end

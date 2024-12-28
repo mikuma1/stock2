@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Company, type: :model do
   describe 'バリデーション' do
-    it '会社名が必須であること' do
+    it '企業名が必須であること' do
       company = described_class.new(company_name: nil)
       company.valid?
       expect(company.errors[:company_name]).to include('を入力してください')

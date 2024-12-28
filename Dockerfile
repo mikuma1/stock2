@@ -1,11 +1,8 @@
 # ベースイメージの指定
 FROM ruby:3.2.2
 
-# 必要なパッケージのインストール
-RUN apt-get update -qq && \
-    apt-get install -y build-essential libpq-dev nodejs npm && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# 必要なシステムパッケージのインストール
+RUN apt-get update -qq && apt-get install -y nodejs postgresql-client
 
 # 作業ディレクトリの設定
 WORKDIR /app
@@ -13,7 +10,8 @@ WORKDIR /app
 # GemfileとGemfile.lockをコピー
 COPY Gemfile Gemfile.lock ./
 
-# Bundlerのインストールと実行
+# RubyGemsを最新バージョンに更新
+RUN gem update --system
 RUN gem install bundler
 RUN bundle install
 

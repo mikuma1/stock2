@@ -1,0 +1,8 @@
+ja:
+  errors:
+    messages:
+      admin_required: "管理者権限が必要です"
+  departments:
+    destroy:
+      errors:
+        users_exist: "所属しているユーザーが存在するため削除できません"
