@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       end
       resources :companies do
         resources :categories, only: %i[index show create update destroy]
+        resources :items, only: %i[index show create update destroy]
       end
     end
   end
