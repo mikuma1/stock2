@@ -28,6 +28,8 @@ tags:
     description: カテゴリ管理API
   - name: Users
     description: ユーザー管理API
+  - name: Items
+    description: 消耗品管理API
 
 security:
   - bearer_auth: []
@@ -158,6 +160,92 @@ components:
           required:
             - name
 
+    # 消耗品スキーマ
+    Item:
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+        - type: object
+          properties:
+            name:
+              type: string
+              description: 消耗品名
+              maxLength: 100
+            description:
+              type: string
+              description: 消耗品の説明
+              maxLength: 1000
+            minimum_quantity:
+              type: integer
+              description: 最小在庫数
+              minimum: 0
+            current_stock:
+              type: integer
+              description: 現在の在庫数
+              minimum: 0
+            unit:
+              type: string
+              description: 単位
+              maxLength: 20
+            url:
+              type: string
+              description: 購入URL
+              format: uri
+            purchase_notes:
+              type: string
+              description: 購入時の注意事項
+              maxLength: 1000
+            category_id:
+              type: integer
+              description: カテゴリID
+            company_id:
+              type: integer
+              description: 所属企業ID
+          required:
+            - name
+            - company_id
+            - category_id
+
+    ItemInput:
+      type: object
+      properties:
+        item:
+          type: object
+          properties:
+            name:
+              type: string
+              description: 消耗品名
+              maxLength: 100
+            description:
+              type: string
+              description: 消耗品の説明
+              maxLength: 1000
+            minimum_quantity:
+              type: integer
+              description: 最小在庫数
+              minimum: 0
+            current_stock:
+              type: integer
+              description: 現在の在庫数
+              minimum: 0
+            unit:
+              type: string
+              description: 単位
+              maxLength: 20
+            url:
+              type: string
+              description: 購入URL
+              format: uri
+            purchase_notes:
+              type: string
+              description: 購入時の注意事項
+              maxLength: 1000
+            category_id:
+              type: integer
+              description: カテゴリID
+          required:
+            - name
+            - category_id
+
 # APIパス定義
 paths:
   /api/v1/companies/{company_id}/categories:
@@ -229,6 +317,92 @@ paths:
     delete:
       tags: [Categories]
       summary: カテゴリの削除
+      responses:
+        "204":
+          $ref: "#/components/responses/NoContent"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/companies/{company_id}/items:
+    parameters:
+      - $ref: "#/components/parameters/CompanyId"
+
+    get:
+      tags: [Items]
+      summary: 消耗品一覧の取得
+      description: 指定した企業の消耗品一覧を取得します
+      parameters:
+        - name: category_id
+          in: query
+          description: カテゴリIDでフィルタリング
+          schema:
+            type: integer
+        - name: low_stock
+          in: query
+          description: 在庫が最小数量以下の商品のみ取得
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: 消耗品一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+
+    post:
+      tags: [Items]
+      summary: 消耗品の新規作成
+      description: |
+        新しい消耗品を作成します。
+        - 管理者のみが実行可能です
+        - 消耗品名は企業内で一意である必要があります
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemInput"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/companies/{company_id}/items/{id}:
+    parameters:
+      - $ref: "#/components/parameters/CompanyId"
+      - $ref: "#/components/parameters/ResourceId"
+
+    get:
+      tags: [Items]
+      summary: 消耗品詳細の取得
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "404":
+          $ref: "#/components/responses/Error"
+
+    patch:
+      tags: [Items]
+      summary: 消耗品情報の更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemInput"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+
+    delete:
+      tags: [Items]
+      summary: 消耗品の削除
       responses:
         "204":
           $ref: "#/components/responses/NoContent"
