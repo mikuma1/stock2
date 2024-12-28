@@ -19,7 +19,7 @@ module Api
       def create
         @item = current_company.items.build(item_params)
         if @item.save
-          render json: { data: @item }, status: :created
+          render json: { data: @item.as_json(include: :category) }, status: :created
         else
           log_error('creation', @item.errors.full_messages)
           render_error(@item.errors.full_messages, :unprocessable_entity)
@@ -28,7 +28,7 @@ module Api
 
       def update
         if @item.update(item_params)
-          render json: { data: @item }
+          render json: { data: @item.as_json(include: :category) }
         else
           log_error('update', @item.errors.full_messages)
           render_error(@item.errors.full_messages, :unprocessable_entity)
@@ -55,7 +55,6 @@ module Api
           :name,
           :description,
           :minimum_quantity,
-          :current_stock,
           :unit,
           :url,
           :purchase_notes,
@@ -66,7 +65,6 @@ module Api
       def filtered_items
         items = current_company.items.includes(:category)
         items = items.where(category_id: params[:category_id]) if params[:category_id].present?
-        items = items.low_stock if params[:low_stock].present?
         items
       end
 
