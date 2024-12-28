@@ -24,6 +24,9 @@ gem 'pg'
 gem 'rswag-api'
 gem 'rswag-ui'
 
+# API Serialization
+gem 'active_model_serializers', '~> 0.10.0'
+
 group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_bot_rails'
