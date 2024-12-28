@@ -1,11 +1,14 @@
 class Category < ApplicationRecord
   belongs_to :company
+  has_many :items, dependent: :restrict_with_error
 
   validates :name,
             presence: true,
-            uniqueness: { scope: :company_id },
-            length: { maximum: 50 }
-  validates :description, length: { maximum: 500 }
+            length: { maximum: 50 },
+            uniqueness: { scope: :company_id }
+  validates :description,
+            length: { maximum: 500 },
+            allow_blank: true
 
   scope :sorted, -> { order(:name) }
 end
