@@ -54,3 +54,7 @@ Rails/EnumHash:
 
 Rails/EnumSyntax:
   Enabled: false
+
+# gemの警告を抑制
+Bundler/DuplicatedGem:
+  Enabled: false

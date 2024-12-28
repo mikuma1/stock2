@@ -18,5 +18,11 @@ module Stock2
     config.i18n.default_locale = :ja
 
     config.hosts << "www.example.com"
+
+    config.generators do |g|
+      g.test_framework :rspec
+      g.helper_specs false
+      g.controller_specs false
+    end
   end
 end
