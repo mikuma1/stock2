@@ -66,7 +66,22 @@ git push origin feature/new-feature
 - RSpecテストの実行
 
 ## APIドキュメント
-※ 別途作成予定
+APIドキュメントはSwagger UIで確認できます。
+
+### 確認方法
+1. 開発サーバーを起動
+```bash
+docker-compose up
+```
+
+2. ブラウザでSwagger UIにアクセス
+```
+http://localhost:3000/api-docs
+```
+
+### 認証について
+すべてのAPIエンドポイントはJWTトークンによる認証が必要です。
+トークンは`Authorization`ヘッダーに`Bearer <token>`の形式で指定してください。
 
 ## 本番環境
 
@@ -114,3 +129,22 @@ docker-compose -f docker-compose.production.yml exec web rails db:create db:migr
 3. 監視
    - ヘルスチェックエンドポイントでアプリケーションの状態を監視
    - ログは標準出力に出力され、コンテナログとして収集可能
+
+### エラーレスポンス
+すべてのAPIは以下の形式でエラーを返します：
+```json
+{
+  "error": "エラーメッセージ",
+  "errors": ["詳細なエラーメッセージ1", "詳細なエラーメッセージ2"]
+}
+```
+
+### ステータスコード
+- 200: 成功
+- 201: 作成成功
+- 204: 削除成功
+- 401: 認証エラー
+- 403: 権限エラー
+- 404: リソースが見つからない
+- 422: バリデーションエラー
+- 500: サーバーエラー

@@ -19,6 +19,19 @@ servers:
   - url: http://localhost:3000
     description: Development server
 
+tags:
+  - name: Companies
+    description: 企業管理API
+  - name: Departments
+    description: 部署管理API
+  - name: Categories
+    description: カテゴリ管理API
+  - name: Users
+    description: ユーザー管理API
+
+security:
+  - bearer_auth: []
+
 components:
   # 認証スキーマ
   securitySchemes:
@@ -38,64 +51,46 @@ components:
       schema:
         type: integer
         minimum: 1
-
-    DepartmentId:
+    ResourceId:
       name: id
       in: path
       required: true
-      description: 部署ID
+      description: リソースID
       schema:
         type: integer
         minimum: 1
 
   # 共通レスポンス
   responses:
-    Forbidden:
-      description: 権限エラー
+    Success:
+      description: 操作が成功しました
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            error: "権限がありません"
-
-    NotFound:
-      description: リソースが見つかりません
+            $ref: "#/components/schemas/BaseResponse"
+    Created:
+      description: 作成に成功しました
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            error: "リソースが見つかりません"
-
-    UnprocessableEntity:
-      description: バリデーションエラー
+            $ref: "#/components/schemas/BaseResponse"
+    NoContent:
+      description: 削除に成功しました
+    Error:
+      description: エラーが発生しました
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Error"
-          example:
-            errors: ["バリデーションエラーが発生しました"]
+            $ref: "#/components/schemas/ErrorResponse"
 
-  # スキーマ定義
+  # 基本スキーマ
   schemas:
-    Department:
+    BaseModel:
       type: object
       properties:
         id:
           type: integer
-          description: 部署ID
-        name:
-          type: string
-          description: 部署名
-          maxLength: 50
-        description:
-          type: string
-          description: 部署の説明
-          maxLength: 500
-        company_id:
-          type: integer
-          description: 所属企業ID
+          description: ID
         created_at:
           type: string
           format: date-time
@@ -104,29 +99,16 @@ components:
           type: string
           format: date-time
           description: 更新日時
-      required:
-        - id
-        - name
-        - company_id
 
-    DepartmentInput:
+    BaseResponse:
       type: object
       properties:
-        department:
+        status:
+          type: string
+        data:
           type: object
-          properties:
-            name:
-              type: string
-              description: 部署名
-              maxLength: 50
-            description:
-              type: string
-              description: 部署の説明
-              maxLength: 500
-          required:
-            - name
 
-    Error:
+    ErrorResponse:
       type: object
       properties:
         error:
@@ -135,456 +117,120 @@ components:
           type: array
           items:
             type: string
-
-    # 企業のスキーマ
-    Company:
-      type: object
-      properties:
-        id:
+        status:
           type: integer
-          description: 企業ID
-        company_name:
-          type: string
-          description: 企業名
-        address:
-          type: string
-          description: 住所
-        phone_number:
-          type: string
-          description: 電話番号
-        subdomain:
-          type: string
-          description: サブドメイン
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - company_name
-        - subdomain
 
-    CompanyInput:
-      type: object
-      properties:
-        company:
-          type: object
+    # カテゴリスキーマ
+    Category:
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+        - type: object
           properties:
-            company_name:
-              type: string
-              description: 企業名
-            address:
-              type: string
-              description: 住所
-            phone_number:
-              type: string
-              description: 電話番号
-            subdomain:
-              type: string
-              description: サブドメイン
-          required:
-            - company_name
-            - subdomain
-
-    # ユーザーのスキーマ
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: ユーザーID
-        email:
-          type: string
-          format: email
-          description: メールアドレス
-        name:
-          type: string
-          description: ユーザー名
-        role:
-          type: string
-          enum: [admin, user]
-          description: ユーザー権限
-        company_id:
-          type: integer
-          description: 所属企業ID
-        department_id:
-          type: integer
-          description: 所属部署ID
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - email
-        - role
-        - company_id
-
-    UserInput:
-      type: object
-      properties:
-        user:
-          type: object
-          properties:
-            email:
-              type: string
-              format: email
-              description: メールアドレス
-            password:
-              type: string
-              description: パスワード
             name:
               type: string
-              description: ユーザー名
-            role:
+              description: カテゴリ名
+              maxLength: 50
+            description:
               type: string
-              enum: [admin, user]
-              description: ユーザー権限
-            department_id:
+              description: カテゴリの説明
+              maxLength: 500
+            company_id:
               type: integer
-              description: 所属部署ID
+              description: 所属企業ID
           required:
-            - email
-            - password
-            - role
+            - name
+            - company_id
+
+    CategoryInput:
+      type: object
+      properties:
+        category:
+          type: object
+          properties:
+            name:
+              type: string
+              description: カテゴリ名
+              maxLength: 50
+            description:
+              type: string
+              description: カテゴリの説明
+              maxLength: 500
+          required:
+            - name
 
 # APIパス定義
 paths:
-  /api/v1/companies/{company_id}/departments:
+  /api/v1/companies/{company_id}/categories:
     parameters:
       - $ref: "#/components/parameters/CompanyId"
 
     get:
-      tags:
-        - Departments
-      summary: 部署一覧の取得
-      description: |
-        指定した企業の部署一覧を取得します。
-        管理者のみがアクセス可能です。
-      security:
-        - bearer_auth: []
+      tags: [Categories]
+      summary: カテゴリ一覧の取得
+      description: 指定した企業のカテゴリ一覧を取得します
       responses:
         "200":
-          description: 部署一覧の取得に成功
+          description: カテゴリ一覧の取得に成功
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Department"
-              example:
-                - id: 1
-                  name: "営業部"
-                  description: "営業部門です"
-                  company_id: 1
-                  created_at: "2024-01-01T00:00:00.000Z"
-                  updated_at: "2024-01-01T00:00:00.000Z"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+                  $ref: "#/components/schemas/Category"
 
     post:
-      tags:
-        - Departments
-      summary: 部署の新規作成
+      tags: [Categories]
+      summary: カテゴリの新規作成
       description: |
-        新しい部署を作成します。
+        新しいカテゴリを作成します。
         - 管理者のみが実行可能です
-        - 部署名は企業内で一意である必要がります
-        - 部署名は50文字以内です
-      security:
-        - bearer_auth: []
+        - カテゴリ名は企業内で一意である必要があります
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DepartmentInput"
-            example:
-              department:
-                name: "新規部署"
-                description: "新規部署の説明"
+              $ref: "#/components/schemas/CategoryInput"
       responses:
         "201":
-          description: 部署の作成に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Department"
+          $ref: "#/components/responses/Created"
         "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+          $ref: "#/components/responses/Error"
 
-  /api/v1/companies/{company_id}/departments/{id}:
+  /api/v1/companies/{company_id}/categories/{id}:
     parameters:
       - $ref: "#/components/parameters/CompanyId"
-      - $ref: "#/components/parameters/DepartmentId"
+      - $ref: "#/components/parameters/ResourceId"
 
     get:
-      tags:
-        - Departments
-      summary: 部署詳細の取得
-      description: 指定した部署の詳細情報を取得します
-      security:
-        - bearer_auth: []
+      tags: [Categories]
+      summary: カテゴリ詳細の取得
       responses:
         "200":
-          description: 部署詳細の取得に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Department"
+          $ref: "#/components/responses/Success"
         "404":
-          $ref: "#/components/responses/NotFound"
+          $ref: "#/components/responses/Error"
 
     patch:
-      tags:
-        - Departments
-      summary: 部署情報の更新
-      description: |
-        部署の情報を更新します。
-        - 管理者のみが実行可能です
-        - 部署名は企業内で一意である必要があります
-        - 部署名は50文字以内です
-      security:
-        - bearer_auth: []
+      tags: [Categories]
+      summary: カテゴリ情報の更新
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/DepartmentInput"
+              $ref: "#/components/schemas/CategoryInput"
       responses:
         "200":
-          description: 部署の更新に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Department"
+          $ref: "#/components/responses/Success"
         "422":
-          $ref: "#/components/responses/UnprocessableEntity"
+          $ref: "#/components/responses/Error"
 
     delete:
-      tags:
-        - Departments
-      summary: 部署の削除
-      description: |
-        部署を削除します。
-        - 管理者のみが実行可能です
-        - 所属するユーザーがいる場合は削除できません
-      security:
-        - bearer_auth: []
+      tags: [Categories]
+      summary: カテゴリの削除
       responses:
         "204":
-          description: 部署の削除に成功
+          $ref: "#/components/responses/NoContent"
         "422":
-          description: 削除できない部署
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                errors: ["所属しているユーザーが存在するため削除できません"]
-
-  # 企業関連のエンドポイント
-  /api/v1/companies:
-    get:
-      tags:
-        - Companies
-      summary: 企業一覧の取得
-      description: 全ての企業の一覧を取得します
-      security:
-        - bearer_auth: []
-      responses:
-        "200":
-          description: 企業一覧の取得に成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Company"
-
-    post:
-      tags:
-        - Companies
-      summary: 企業の新規作成
-      description: |
-        新しい企業を作成します。
-        - 管理者のみが実行可能です
-        - サブドメインは一意である必要があります
-      security:
-        - bearer_auth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CompanyInput"
-      responses:
-        "201":
-          description: 企業の作成に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Company"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-
-  /api/v1/companies/{id}:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        description: 企業ID
-        schema:
-          type: integer
-          minimum: 1
-
-    get:
-      tags:
-        - Companies
-      summary: 企業詳細の取得
-      security:
-        - bearer_auth: []
-      responses:
-        "200":
-          description: 企業詳細の取得に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Company"
-        "404":
-          $ref: "#/components/responses/NotFound"
-
-    patch:
-      tags:
-        - Companies
-      summary: 企業情報の更新
-      description: |
-        企業の情報を更新します。
-        - 管理者のみが実行可能です
-      security:
-        - bearer_auth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CompanyInput"
-      responses:
-        "200":
-          description: 企業情報の更新に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Company"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-
-  # ユーザー関連のエンドポイント
-  /api/v1/companies/{company_id}/users:
-    parameters:
-      - $ref: "#/components/parameters/CompanyId"
-
-    get:
-      tags:
-        - Users
-      summary: ユーザー一覧の取得
-      description: 指定した企業のユーザー一覧を取得します
-      security:
-        - bearer_auth: []
-      responses:
-        "200":
-          description: ユーザー一覧の取得に成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-
-    post:
-      tags:
-        - Users
-      summary: ユーザーの新規作成
-      description: |
-        新しいユーザーを作成します。
-        - 管理者のみが実行可能です
-        - メールアドレスは一意である必要があります
-        - 一般ユーザーは部署の所属が必須です
-      security:
-        - bearer_auth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserInput"
-      responses:
-        "201":
-          description: ユーザーの作成に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
-
-  /api/v1/companies/{company_id}/users/{id}:
-    parameters:
-      - $ref: "#/components/parameters/CompanyId"
-      - name: id
-        in: path
-        required: true
-        description: ユーザーID
-        schema:
-          type: integer
-          minimum: 1
-
-    get:
-      tags:
-        - Users
-      summary: ユーザー詳細の取得
-      security:
-        - bearer_auth: []
-      responses:
-        "200":
-          description: ユーザー詳細の取得に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "404":
-          $ref: "#/components/responses/NotFound"
-
-    patch:
-      tags:
-        - Users
-      summary: ユーザー情報の更新
-      description: |
-        ユーザーの情報を更新します。
-        - 管理者のみが実行可能です
-        - メールアドレスは一意である必要があります
-        - 一般ユーザーは部署の所属が必須です
-      security:
-        - bearer_auth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserInput"
-      responses:
-        "200":
-          description: ユーザー情報の更新に成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "422":
-          $ref: "#/components/responses/UnprocessableEntity"
+          $ref: "#/components/responses/Error"
