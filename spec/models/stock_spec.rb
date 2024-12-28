@@ -31,7 +31,7 @@ RSpec.describe Stock, type: :model do
 
     it 'operated_atが必須であること' do
       stock.operated_at = nil
-      expect(stock).to be_valid  # before_validationで自動設定されるため
+      expect(stock).to be_valid
     end
 
     it 'noteが500文字以内であること' do

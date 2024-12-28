@@ -20,7 +20,7 @@ RSpec.describe 'Api::V1::Stocks', type: :request do
       end
 
       it '全ての在庫履歴を返すこと' do
-        expect(json.size).to eq(4)  # 既存の1件 + 追加の3件
+        expect(json.size).to eq(4)
       end
     end
   end
