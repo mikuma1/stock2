@@ -13,6 +13,7 @@ AllCops:
     - "vendor/**/*"
     - "tmp/**/*"
     - "node_modules/**/*"
+    - "app/api-docs/**/*"
 
 Style/Documentation:
   Enabled: false

@@ -35,6 +35,8 @@ end
 group :development do
   gem 'listen', '~> 3.2'
   gem 'web-console', '>= 3.3.0'
+  gem 'rswag-api'
+  gem 'rswag-ui'
 end
 
 group :test do
