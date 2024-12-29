@@ -2,6 +2,7 @@ class Item < ApplicationRecord
   belongs_to :category
   belongs_to :company
   has_many :stocks, dependent: :destroy
+  has_many :orders, dependent: :destroy
 
   validates :name,
             presence: true,

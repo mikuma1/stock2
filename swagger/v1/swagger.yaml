@@ -32,6 +32,8 @@ tags:
     description: 消耗品管理API
   - name: Stocks
     description: 在庫管理API
+  - name: Orders
+    description: 発注管理API
 
 security:
   - bearer_auth: []
@@ -94,20 +96,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
-    StockList:
-      description: 在庫履歴一覧の取得に成功
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Stock"
-    StockDetail:
-      description: 在庫履歴詳細の取得に成功
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Stock"
 
   # 基本スキーマ
   schemas:
@@ -329,6 +317,94 @@ components:
             - quantity
             - operation_type
 
+    # 発注スキーマ
+    Order:
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+        - type: object
+          properties:
+            item_id:
+              type: integer
+              description: 消耗品ID
+            user_id:
+              type: integer
+              description: 申請者ID
+            approver_id:
+              type: integer
+              description: 承認者ID
+              nullable: true
+            company_id:
+              type: integer
+              description: 所属企業ID
+            quantity:
+              type: integer
+              description: 数量
+              minimum: 1
+            status:
+              type: string
+              enum: [pending, approved, rejected, ordered, received]
+              description: |
+                ステータス
+                - pending: 申請中
+                - approved: 承認済
+                - rejected: 却下
+                - ordered: 発注済
+                - received: 受領済
+            note:
+              type: string
+              description: 備考
+              maxLength: 1000
+            ordered_at:
+              type: string
+              format: date-time
+              description: 発注日時
+              nullable: true
+            received_at:
+              type: string
+              format: date-time
+              description: 受領日時
+              nullable: true
+            item_name:
+              type: string
+              description: 消耗品名
+            user_name:
+              type: string
+              description: 申請者名
+            approver_name:
+              type: string
+              description: 承認者名
+              nullable: true
+            status_text:
+              type: string
+              description: ステータスの日本語表示
+          required:
+            - item_id
+            - user_id
+            - company_id
+            - quantity
+            - status
+
+    OrderInput:
+      type: object
+      properties:
+        order:
+          type: object
+          properties:
+            item_id:
+              type: integer
+              description: 消耗品ID
+            quantity:
+              type: integer
+              description: 数量
+              minimum: 1
+            note:
+              type: string
+              description: 備考
+              maxLength: 1000
+          required:
+            - item_id
+            - quantity
+
 # APIパス定義
 paths:
   /api/v1/companies/{company_id}/categories:
@@ -544,4 +620,141 @@ paths:
         "401":
           $ref: "#/components/responses/Error"
         "404":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/orders:
+    get:
+      tags: [Orders]
+      summary: 発注一覧の取得
+      description: 所属企業の発注一覧を取得します
+      responses:
+        "200":
+          description: 発注一覧の取得に成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          $ref: "#/components/responses/Error"
+
+    post:
+      tags: [Orders]
+      summary: 発注の新規作成
+      description: 新しい発注を作成します
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/orders/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+
+    get:
+      tags: [Orders]
+      summary: 発注詳細の取得
+      responses:
+        "200":
+          description: 発注詳細の取得に成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          $ref: "#/components/responses/Error"
+
+    patch:
+      tags: [Orders]
+      summary: 発注情報の更新
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/orders/{id}/approve:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+
+    patch:
+      tags: [Orders]
+      summary: 発注の承認
+      description: |
+        発注を承認します
+        - 管理者のみが実行可能です
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/orders/{id}/reject:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+
+    patch:
+      tags: [Orders]
+      summary: 発注の却下
+      description: |
+        発注を却下します
+        - 管理者のみが実行可能です
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/orders/{id}/order:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+
+    patch:
+      tags: [Orders]
+      summary: 発注処理の実行
+      description: |
+        承認済みの発注を発注済みにします
+        - 管理者のみが実行可能です
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/orders/{id}/receive:
+    parameters:
+      - $ref: "#/components/parameters/ResourceId"
+
+    patch:
+      tags: [Orders]
+      summary: 発注品の受領
+      description: |
+        発注済みの商品を受領済みにします
+        - 管理者のみが実行可能です
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
           $ref: "#/components/responses/Error"

@@ -3,6 +3,7 @@ ja:
     models:
       item: "消耗品"
       category: "カテゴリ"
+      order: 発注
     attributes:
       item:
         name: "消耗品名"
@@ -12,6 +13,16 @@ ja:
         url: "購入URL"
         purchase_notes: "購入時の注意事項"
         category_id: "カテゴリ"
+      order:
+        item: 消耗品
+        company: 企業
+        user: 申請者
+        approver: 承認者
+        quantity: 数量
+        status: ステータス
+        note: 備考
+        ordered_at: 発注日時
+        received_at: 受領日時
     errors:
       messages:
         record_invalid: "バリデーションに失敗しました: %{errors}"
@@ -37,6 +48,10 @@ ja:
         item:
           one: "消耗品"
           other: "消耗品"
+        order:
+          attributes:
+            status:
+              invalid_transition: "%{from}から%{to}への変更はできません"
 
   errors:
     messages:
@@ -48,3 +63,12 @@ ja:
     destroy:
       errors:
         users_exist: "所属しているユーザーが存在するため削除できません"
+
+  enums:
+    order:
+      status:
+        pending: 申請中
+        approved: 承認済み
+        rejected: 却下
+        ordered: 発注済み
+        received: 受領済み

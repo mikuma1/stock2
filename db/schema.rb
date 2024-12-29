@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_12_29_130949) do
+ActiveRecord::Schema[7.0].define(version: 2024_12_29_133925) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -61,6 +61,25 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_29_130949) do
     t.index ["name", "company_id"], name: "index_items_on_name_and_company_id", unique: true
   end
 
+  create_table "orders", force: :cascade do |t|
+    t.bigint "item_id", null: false
+    t.bigint "company_id", null: false
+    t.bigint "user_id", null: false
+    t.bigint "approver_id"
+    t.integer "quantity", null: false
+    t.string "status", default: "pending", null: false
+    t.text "note"
+    t.datetime "ordered_at"
+    t.datetime "received_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["approver_id"], name: "index_orders_on_approver_id"
+    t.index ["company_id"], name: "index_orders_on_company_id"
+    t.index ["item_id"], name: "index_orders_on_item_id"
+    t.index ["status"], name: "index_orders_on_status"
+    t.index ["user_id"], name: "index_orders_on_user_id"
+  end
+
   create_table "stocks", force: :cascade do |t|
     t.bigint "item_id", null: false
     t.bigint "company_id", null: false
@@ -100,6 +119,10 @@ ActiveRecord::Schema[7.0].define(version: 2024_12_29_130949) do
   add_foreign_key "departments", "companies"
   add_foreign_key "items", "categories"
   add_foreign_key "items", "companies"
+  add_foreign_key "orders", "companies"
+  add_foreign_key "orders", "items"
+  add_foreign_key "orders", "users"
+  add_foreign_key "orders", "users", column: "approver_id"
   add_foreign_key "stocks", "companies"
   add_foreign_key "stocks", "items"
   add_foreign_key "stocks", "users"

@@ -18,6 +18,14 @@ Rails.application.routes.draw do
       resources :items do
         resources :stocks, only: %i[index show create]
       end
+      resources :orders do
+        member do
+          patch :approve
+          patch :reject
+          patch :order
+          patch :receive
+        end
+      end
     end
   end
 end
