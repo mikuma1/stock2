@@ -15,8 +15,9 @@ class Order < ApplicationRecord
   validates :quantity, presence: true, numericality: { greater_than: 0 }
   validates :status, presence: true
   validates :note, length: { maximum: 500 }
+  validates :approver, presence: true, if: -> { approved? || rejected? || ordered? || received? }
 
-  validate :validate_status_transition, if: :status_changed?
+  validate :validate_status_transition, if: :will_save_change_to_status?
 
   private
 
@@ -33,6 +34,6 @@ class Order < ApplicationRecord
 
     return if allowed_transitions[status_was]&.include?(status)
 
-    errors.add(:status, "cannot transition from #{status_was} to #{status}")
+    errors.add(:status, :invalid_transition, from: status_was, to: status)
   end
 end
