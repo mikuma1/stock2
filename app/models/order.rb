@@ -19,6 +19,21 @@ class Order < ApplicationRecord
 
   validate :validate_status_transition, if: :will_save_change_to_status?
 
+  def receive_stock!
+    ActiveRecord::Base.transaction do
+      item.update!(quantity: item.quantity + quantity)
+
+      item.stocks.create!(
+        quantity: quantity,
+        operation_type: :receive,
+        note: "発注品受領 (発注ID: #{id})",
+        user: approver
+      )
+
+      update!(received_at: Time.current)
+    end
+  end
+
   private
 
   def validate_status_transition
