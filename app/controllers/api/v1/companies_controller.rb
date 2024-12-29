@@ -37,7 +37,7 @@ module Api
       end
 
       def company_params
-        params.require(:company).permit(:company_name, :address, :phone_number, :subdomain)
+        params.require(:company).permit(:name, :address, :phone_number, :subdomain)
       end
     end
   end

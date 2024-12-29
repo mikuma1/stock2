@@ -9,7 +9,7 @@ RSpec.describe CompanySerializer, type: :serializer do
     expect(serialization.keys).to match_array(
       %w[
         id
-        company_name
+        name
         created_at
         updated_at
       ]
@@ -17,6 +17,6 @@ RSpec.describe CompanySerializer, type: :serializer do
   end
 
   it '属性が正しくシリアライズされること' do
-    expect(serialization['company_name']).to eq(company.company_name)
+    expect(serialization['name']).to eq(company.name)
   end
 end
