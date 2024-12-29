@@ -6,25 +6,45 @@ class OrderSerializer < ApplicationSerializer
              :ordered_at,
              :received_at,
              :created_at,
-             :updated_at
+             :updated_at,
+             :item_name,
+             :user_name,
+             :approver_name,
+             :status_text
 
-  belongs_to :item
-  belongs_to :user
-  belongs_to :approver, optional: true
+  belongs_to :item, serializer: ItemSerializer
+  belongs_to :user, serializer: UserSerializer
+  belongs_to :approver, serializer: UserSerializer, optional: true
 
-  attribute :item_name do |object|
-    object.item.name
+  def item_name
+    object.item&.name
   end
 
-  attribute :user_name do |object|
-    object.user.name
+  def user_name
+    object.user&.name
   end
 
-  attribute :approver_name do |object|
+  def approver_name
     object.approver&.name
   end
 
-  attribute :status_text do |object|
+  def status_text
     I18n.t("enums.order.status.#{object.status}")
+  end
+
+  def created_at
+    object.created_at&.as_json
+  end
+
+  def updated_at
+    object.updated_at&.as_json
+  end
+
+  def ordered_at
+    object.ordered_at&.as_json
+  end
+
+  def received_at
+    object.received_at&.as_json
   end
 end
