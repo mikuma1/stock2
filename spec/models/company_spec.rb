@@ -4,14 +4,16 @@ RSpec.describe Company, type: :model do
   describe 'アソシエーション' do
     it { is_expected.to have_many(:users).dependent(:destroy) }
     it { is_expected.to have_many(:departments).dependent(:destroy) }
-    it { is_expected.to have_many(:categories).dependent(:destroy) }
     it { is_expected.to have_many(:items).dependent(:destroy) }
+    it { is_expected.to have_many(:categories).dependent(:destroy) }
   end
 
   describe 'バリデーション' do
     subject { build(:company) }
 
-    it { is_expected.to validate_presence_of(:company_name) }
+    it { is_expected.to validate_presence_of(:name) }
+    it { is_expected.to validate_uniqueness_of(:name).case_insensitive }
+    it { is_expected.to validate_presence_of(:phone_number) }
     it { is_expected.to validate_presence_of(:subdomain) }
     it { is_expected.to validate_uniqueness_of(:subdomain).case_insensitive }
 
@@ -24,12 +26,12 @@ RSpec.describe Company, type: :model do
         end
       end
 
-      it '無効なフォーマットを許可しないこと' do
-        invalid_subdomains = %w[test_company TEST テスト test.company -test test-]
+      it '無効な形式を許可しないこと' do
+        invalid_subdomains = ['test_company', 'TEST', 'test.company', '-test-', 'test-']
         invalid_subdomains.each do |subdomain|
           company = build(:company, subdomain: subdomain)
           expect(company).not_to be_valid
-          expect(company.errors[:subdomain]).to include(I18n.t('errors.messages.invalid_subdomain_format'))
+          expect(company.errors[:subdomain]).to include('は半角英数字とハイフンのみ使用できます')
         end
       end
     end

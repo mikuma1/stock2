@@ -1,8 +1,7 @@
 FactoryBot.define do
   factory :company do
-    company_name { Faker::Company.name }
-    address { Faker::Address.full_address }
-    phone_number { Faker::PhoneNumber.phone_number }
-    subdomain { Faker::Internet.unique.domain_word }
+    sequence(:name) { |n| "テスト企業#{n}" }
+    sequence(:subdomain) { |n| "test-company-#{n}" }
+    phone_number { '03-1234-5678' }
   end
 end
