@@ -30,6 +30,8 @@ tags:
     description: ユーザー管理API
   - name: Items
     description: 消耗品管理API
+  - name: Stocks
+    description: 在庫管理API
 
 security:
   - bearer_auth: []
@@ -61,6 +63,14 @@ components:
       schema:
         type: integer
         minimum: 1
+    ItemId:
+      name: item_id
+      in: path
+      required: true
+      description: 消耗品ID
+      schema:
+        type: integer
+        minimum: 1
 
   # 共通レスポンス
   responses:
@@ -84,6 +94,20 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
+    StockList:
+      description: 在庫履歴一覧の取得に成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Stock"
+    StockDetail:
+      description: 在庫履歴詳細の取得に成功
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Stock"
 
   # 基本スキーマ
   schemas:
@@ -246,6 +270,65 @@ components:
             - name
             - category_id
 
+    # 在庫スキーマ
+    Stock:
+      allOf:
+        - $ref: "#/components/schemas/BaseModel"
+        - type: object
+          properties:
+            item_id:
+              type: integer
+              description: 消耗品ID
+            company_id:
+              type: integer
+              description: 所属企業ID
+            user_id:
+              type: integer
+              description: 操作したユーザーID
+            quantity:
+              type: integer
+              description: 数量（入庫はプラス、出庫はマイナス）
+            operation_type:
+              type: string
+              enum: [initial, addition, subtraction]
+              description: 操作種別（initial:初期在庫、addition:入庫、subtraction:出庫）
+            note:
+              type: string
+              description: 備考
+              maxLength: 500
+            operated_at:
+              type: string
+              format: date-time
+              description: 操作日時
+          required:
+            - item_id
+            - company_id
+            - user_id
+            - quantity
+            - operation_type
+            - operated_at
+
+    StockInput:
+      type: object
+      properties:
+        stock:
+          type: object
+          properties:
+            quantity:
+              type: integer
+              description: 数量（入庫はプラス、出庫はマイナス）
+            operation_type:
+              type: string
+              enum: [initial, addition, subtraction]
+              description: 操作種別
+            note:
+              type: string
+              description: 備考
+              maxLength: 500
+          required:
+            - quantity
+            - operation_type
+
 # APIパス定義
 paths:
   /api/v1/companies/{company_id}/categories:
@@ -407,4 +490,58 @@ paths:
         "204":
           $ref: "#/components/responses/NoContent"
         "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/items/{item_id}/stocks:
+    parameters:
+      - $ref: "#/components/parameters/ItemId"
+
+    get:
+      tags: [Stocks]
+      summary: 在庫履歴一覧の取得
+      description: 指定した消耗品の在庫履歴一覧を取得します
+      responses:
+        "200":
+          $ref: "#/components/responses/StockList"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
+          $ref: "#/components/responses/Error"
+
+    post:
+      tags: [Stocks]
+      summary: 在庫操作の記録
+      description: |
+        在庫の入出庫を記録します。
+        - 管理者のみが実行可能です
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StockInput"
+      responses:
+        "201":
+          $ref: "#/components/responses/Created"
+        "401":
+          $ref: "#/components/responses/Error"
+        "403":
+          $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/items/{item_id}/stocks/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ItemId"
+      - $ref: "#/components/parameters/ResourceId"
+
+    get:
+      tags: [Stocks]
+      summary: 在庫履歴詳細の取得
+      responses:
+        "200":
+          $ref: "#/components/responses/StockDetail"
+        "401":
+          $ref: "#/components/responses/Error"
+        "404":
           $ref: "#/components/responses/Error"

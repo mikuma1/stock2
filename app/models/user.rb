@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :stocks, dependent: :restrict_with_error
   belongs_to :company
   belongs_to :department, optional: true
 

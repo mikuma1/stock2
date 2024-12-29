@@ -1,6 +1,7 @@
 class Item < ApplicationRecord
   belongs_to :category
   belongs_to :company
+  has_many :stocks, dependent: :destroy
 
   validates :name,
             presence: true,
@@ -14,4 +15,12 @@ class Item < ApplicationRecord
   validates :purchase_notes, length: { maximum: 1000 }
 
   scope :sorted, -> { order(:name) }
+
+  def current_stock
+    stocks.sum(:quantity)
+  end
+
+  def stock_history
+    stocks.order(operated_at: :desc)
+  end
 end

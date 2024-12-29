@@ -15,6 +15,9 @@ Rails.application.routes.draw do
         resources :categories, only: %i[index show create update destroy]
         resources :items, only: %i[index show create update destroy]
       end
+      resources :items do
+        resources :stocks, only: %i[index show create]
+      end
     end
   end
 end
