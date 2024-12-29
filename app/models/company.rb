@@ -4,6 +4,7 @@ class Company < ApplicationRecord
   has_many :items, dependent: :destroy
   has_many :categories, dependent: :destroy
   has_many :stocks, dependent: :destroy
+  has_many :orders, dependent: :destroy
 
   validates :name, presence: true, uniqueness: true
   validates :phone_number, presence: true
