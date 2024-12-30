@@ -96,6 +96,20 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ErrorResponse"
+    StockList:
+      description: 在庫履歴一覧の取得に成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Stock"
+    StockDetail:
+      description: 在庫履歴詳細の取得に成功
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Stock"
 
   # 基本スキーマ
   schemas:
@@ -263,34 +277,21 @@ components:
             item_id:
               type: integer
               description: 消耗品ID
-            company_id:
-              type: integer
-              description: 所属企業ID
-            user_id:
-              type: integer
-              description: 操作したユーザーID
             quantity:
               type: integer
-              description: 数量（入庫はプラス、出庫はマイナス）
+              description: 数量
             operation_type:
               type: string
-              enum: [initial, addition, subtraction]
-              description: 操作種別（initial:初期在庫、addition:入庫、subtraction:出庫）
-            note:
+              enum: [addition, subtraction]
+              description: 操作種別（addition:入庫、subtraction:出庫）
+            notes:
               type: string
               description: 備考
-              maxLength: 500
-            operated_at:
-              type: string
-              format: date-time
-              description: 操作日時
+              maxLength: 1000
           required:
             - item_id
-            - company_id
-            - user_id
             - quantity
             - operation_type
-            - operated_at
 
     StockInput:
       type: object
@@ -300,15 +301,16 @@ components:
           properties:
             quantity:
               type: integer
-              description: 数量（入庫はプラス、出庫はマイナス）
+              description: 数量
+              minimum: 1
             operation_type:
               type: string
-              enum: [initial, addition, subtraction]
-              description: 操作種別
-            note:
+              enum: [addition, subtraction]
+              description: 操作種別（addition:入庫、subtraction:出庫）
+            notes:
               type: string
               description: 備考
-              maxLength: 500
+              maxLength: 1000
           required:
             - quantity
             - operation_type
@@ -571,7 +573,10 @@ paths:
     get:
       tags: [Stocks]
       summary: 在庫履歴一覧の取得
-      description: 指定した消耗品の在庫履歴一覧を取得します
+      description: |
+        指定した消耗品の在庫履歴一覧を取得します
+        - 在庫の増減履歴を時系列で表示
+        - 最新の操作が先頭に表示されます
       responses:
         "200":
           $ref: "#/components/responses/StockList"
@@ -610,6 +615,7 @@ paths:
     get:
       tags: [Stocks]
       summary: 在庫履歴詳細の取得
+      description: 指定した在庫履歴の詳細を取得します
       responses:
         "200":
           $ref: "#/components/responses/StockDetail"
