@@ -52,6 +52,10 @@ ja:
           attributes:
             status:
               invalid_transition: "%{from}から%{to}への変更はできません"
+        item:
+          attributes:
+            stock_quantity:
+              insufficient_stock: "在庫が不足しています"
 
   errors:
     messages:

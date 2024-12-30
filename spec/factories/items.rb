@@ -6,6 +6,7 @@ FactoryBot.define do
     unit { '個' }
     sequence(:url) { |n| "https://example.com/items/#{n}" }
     sequence(:purchase_notes) { |n| "購入時の注意事項#{n}" }
+    stock_quantity { 0 }
     association :category
     association :company
   end
