@@ -24,4 +24,17 @@ class Item < ApplicationRecord
   def stock_history
     stocks.order(operated_at: :desc)
   end
+
+  def update_stock_quantity!(quantity:, operation_type:)
+    transaction do
+      new_quantity = operation_type == 'addition' ? stock_quantity + quantity : stock_quantity - quantity
+
+      if new_quantity.negative?
+        errors.add(:stock_quantity, :insufficient_stock)
+        raise ActiveRecord::RecordInvalid, self
+      end
+
+      update!(stock_quantity: new_quantity)
+    end
+  end
 end
