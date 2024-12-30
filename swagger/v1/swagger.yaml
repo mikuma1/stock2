@@ -403,6 +403,32 @@ components:
             - item_id
             - quantity
 
+    # 在庫関連のエラーレスポンス
+    StockError:
+      allOf:
+        - $ref: "#/components/schemas/ErrorResponse"
+        - type: object
+          properties:
+            details:
+              type: object
+              properties:
+                quantity:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    ["在庫数が不足しています", "1以上の数値を指定してください"]
+                operation_type:
+                  type: array
+                  items:
+                    type: string
+                  example: ["入庫または出庫を指定してください"]
+                stock_quantity:
+                  type: array
+                  items:
+                    type: string
+                  example: ["在庫数は0以上である必要があります"]
+
 # APIパス定義
 paths:
   /api/v1/companies/{company_id}/categories:
@@ -796,5 +822,31 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/Success"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: 権限エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: リソースが見つかりません
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
         "422":
-          $ref: "#/components/responses/Error"
+          description: |
+            バリデーションエラー
+            - 数量が不正（負数、ゼロ）
+            - 在庫数が不足（出庫時）
+            - 操作種別が不正
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockError"
