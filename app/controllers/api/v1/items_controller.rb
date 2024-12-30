@@ -21,7 +21,7 @@ module Api
         if @item.save
           render_success(serialize_item(@item), :created)
         else
-          log_error(resource: :item, action: :creation, message: @item.errors.full_messages)
+          log_error(resource: :item, action: :create, message: @item.errors.full_messages)
           render_error(@item.errors.full_messages, :unprocessable_entity)
         end
       end
@@ -45,7 +45,7 @@ module Api
       end
 
       def update_stock
-        @item.update_stock_quantity!(stock_params.to_h.symbolize_keys)
+        @item.update_stock_quantity!(**stock_params)
         render_success(serialize_item(@item))
       rescue ArgumentError, ActiveRecord::RecordInvalid => e
         handle_stock_update_error(e)
@@ -75,12 +75,15 @@ module Api
         items
       end
 
-      def log_error(action, error_messages)
-        Rails.logger.error "Item #{action} failed: #{Array(error_messages).join(', ')}"
+      def stock_params
+        params.require(:stock).permit(:quantity, :operation_type).tap do |p|
+          p[:quantity] = p[:quantity].to_i if p[:quantity].present?
+          p[:operation_type] = p[:operation_type].to_s if p[:operation_type].present?
+        end.to_h.symbolize_keys
       end
 
-      def stock_params
-        params.require(:stock).permit(:quantity, :operation_type)
+      def serialize_item(item)
+        ItemSerializer.new(item).as_json
       end
 
       def handle_stock_update_error(error)

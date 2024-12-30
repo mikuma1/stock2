@@ -4,8 +4,13 @@ module Api
       include Devise::Controllers::Helpers
 
       before_action :authenticate_user!
+      before_action :set_current_user
 
       private
+
+      def set_current_user
+        Current.user = current_user
+      end
 
       def render_success(data, status = :ok)
         render json: { data: data }, status: status
