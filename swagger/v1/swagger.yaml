@@ -194,10 +194,6 @@ components:
               type: integer
               description: 最小在庫数
               minimum: 0
-            current_stock:
-              type: integer
-              description: 現在の在庫数
-              minimum: 0
             unit:
               type: string
               description: 単位
@@ -238,10 +234,6 @@ components:
             minimum_quantity:
               type: integer
               description: 最小在庫数
-              minimum: 0
-            current_stock:
-              type: integer
-              description: 現在の在庫数
               minimum: 0
             unit:
               type: string
