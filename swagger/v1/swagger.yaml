@@ -186,6 +186,10 @@ components:
               type: string
               description: 消耗品の説明
               maxLength: 1000
+            stock_quantity:
+              type: integer
+              description: 現在の在庫数
+              minimum: 0
             minimum_quantity:
               type: integer
               description: 最小在庫数
@@ -756,5 +760,43 @@ paths:
           $ref: "#/components/responses/Success"
         "403":
           $ref: "#/components/responses/Error"
+        "422":
+          $ref: "#/components/responses/Error"
+
+  /api/v1/companies/{company_id}/items/{id}/update_stock:
+    parameters:
+      - $ref: "#/components/parameters/CompanyId"
+      - $ref: "#/components/parameters/ResourceId"
+
+    patch:
+      tags: [Items]
+      summary: 在庫数の更新
+      description: |
+        消耗品の在庫数を更新します
+        - 在庫の増減操作を記録します
+        - 在庫履歴も同時に作成されます
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stock:
+                  type: object
+                  properties:
+                    quantity:
+                      type: integer
+                      description: 数量
+                    operation_type:
+                      type: string
+                      enum: [addition, subtraction]
+                      description: 操作種別（addition:入庫、subtraction:出庫）
+                  required:
+                    - quantity
+                    - operation_type
+      responses:
+        "200":
+          $ref: "#/components/responses/Success"
         "422":
           $ref: "#/components/responses/Error"
