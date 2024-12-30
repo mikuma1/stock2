@@ -10,14 +10,18 @@ Rails.application.routes.draw do
       resources :companies, only: %i[index show create update] do
         resources :departments, only: %i[index show create update destroy]
         resources :users, only: %i[index show create update]
-      end
-      resources :companies do
         resources :categories, only: %i[index show create update destroy]
-        resources :items, only: %i[index show create update destroy]
+        resources :items do
+          member do
+            patch :update_stock
+          end
+        end
       end
+
       resources :items do
         resources :stocks, only: %i[index show create]
       end
+
       resources :orders do
         member do
           patch :approve
