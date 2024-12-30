@@ -20,7 +20,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       it '企業一覧を取得できること' do
         get api_v1_companies_path
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.size).to eq 5
+        expect(response.parsed_body['data'].size).to eq 5
       end
     end
   end
@@ -34,7 +34,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
       it '指定した企業の情報を取得できること' do
         get api_v1_company_path(company)
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body['name']).to eq company.name
+        expect(response.parsed_body['data']['name']).to eq company.name
       end
     end
   end
@@ -62,7 +62,7 @@ RSpec.describe 'Api::V1::Companies', type: :request do
           end.to change(Company, :count).by(1)
 
           expect(response).to have_http_status(:created)
-          expect(response.parsed_body['name']).to eq '株式会社テスト'
+          expect(response.parsed_body['data']['name']).to eq '株式会社テスト'
         end
       end
 

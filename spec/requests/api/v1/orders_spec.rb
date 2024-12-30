@@ -24,7 +24,7 @@ RSpec.describe 'Api::V1::Orders', type: :request do
       it '発注一覧を取得できること' do
         get api_v1_orders_path
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.size).to eq 3
+        expect(response.parsed_body['data'].size).to eq 3
       end
     end
   end
@@ -38,7 +38,7 @@ RSpec.describe 'Api::V1::Orders', type: :request do
       it '指定した発注の情報を取得できること' do
         get api_v1_order_path(order)
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body['id']).to eq order.id
+        expect(response.parsed_body['data']['id']).to eq order.id
       end
     end
   end

@@ -27,7 +27,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
     it 'ユーザー一覧を取得できること' do
       get api_v1_company_users_path(company_id: company.id)
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body.size).to eq 4
+      expect(response.parsed_body['data'].size).to eq 4
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
       it '指定したユーザーの情報を取得できること' do
         get api_v1_company_user_path(company, user)
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body['email']).to eq user.email
+        expect(response.parsed_body['data']['email']).to eq user.email
       end
     end
   end
@@ -58,7 +58,7 @@ RSpec.describe 'Api::V1::Users', type: :request do
           end.to change(User, :count).by(1)
 
           expect(response).to have_http_status(:created)
-          expect(response.parsed_body['email']).to eq 'test@example.com'
+          expect(response.parsed_body['data']['email']).to eq 'test@example.com'
         end
       end
 
