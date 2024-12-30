@@ -5,7 +5,10 @@ RSpec.describe 'Api::V1::Items', type: :request do
   let(:category) { create(:category, company: company) }
   let(:admin) { create(:user, :admin, company: company) }
   let(:user) { create(:user, company: company) }
-  let(:item) { create(:item, company: company, category: category) }
+
+  def item
+    @item ||= create(:item, company: company, category: category)
+  end
 
   def valid_params
     {
@@ -131,6 +134,41 @@ RSpec.describe 'Api::V1::Items', type: :request do
       it '削除できないこと' do
         delete api_v1_company_item_path(company, item)
         expect(response).to have_http_status(:forbidden)
+      end
+    end
+  end
+
+  describe 'PATCH /api/v1/companies/:company_id/items/:id/update_stock' do
+    let(:stock_params) do
+      {
+        stock: {
+          quantity: 5,
+          operation_type: 'addition'
+        }
+      }
+    end
+
+    context '認証済みユーザーの場合' do
+      before { sign_in user }
+
+      it '在庫を増やせること' do
+        patch update_stock_api_v1_company_item_path(company, item), params: stock_params
+        expect(response).to have_http_status(:ok)
+        expect(item.reload.stock_quantity).to eq(5)
+      end
+
+      it '在庫を減らせること' do
+        item.update!(stock_quantity: 10)
+        patch update_stock_api_v1_company_item_path(company, item),
+              params: { stock: { quantity: 3, operation_type: 'subtraction' } }
+        expect(response).to have_http_status(:ok)
+        expect(item.reload.stock_quantity).to eq(7)
+      end
+
+      it '在庫が不足している場合はエラーになること' do
+        patch update_stock_api_v1_company_item_path(company, item),
+              params: { stock: { quantity: 1, operation_type: 'subtraction' } }
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end

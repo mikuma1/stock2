@@ -5,7 +5,7 @@ RSpec.describe Item, type: :model do
   let(:category) { create(:category, company: company) }
 
   describe 'バリデーション' do
-    subject { build(:item, company: company, category: category) }
+    subject { build(:item) }
 
     it { is_expected.to belong_to(:category) }
     it { is_expected.to belong_to(:company) }
@@ -52,6 +52,38 @@ RSpec.describe Item, type: :model do
         expect(item).to be_valid
       end
     end
+
+    describe 'stock_quantity' do
+      let(:item) { build(:item, stock_quantity: nil, category: category, company: company) }
+
+      it '空の場合は無効であること' do
+        expect(item).to be_invalid
+        expect(item.errors[:stock_quantity]).to include('を入力してください')
+      end
+
+      it '数値以外は無効であること' do
+        item.stock_quantity = 'abc'
+        expect(item).to be_invalid
+        expect(item.errors[:stock_quantity]).to include('は数値で入力してください')
+      end
+
+      it '負の数は無効であること' do
+        item.stock_quantity = -1
+        expect(item).to be_invalid
+        expect(item.errors[:stock_quantity]).to include('は0以上の値にしてください')
+      end
+
+      it '小数は無効であること' do
+        item.stock_quantity = 1.5
+        expect(item).to be_invalid
+        expect(item.errors[:stock_quantity]).to include('は整数で入力してください')
+      end
+
+      it '0以上の整数は有効であること' do
+        item.stock_quantity = 0
+        expect(item).to be_valid
+      end
+    end
   end
 
   describe 'スコープ' do
@@ -69,24 +101,6 @@ RSpec.describe Item, type: :model do
   describe '在庫関連' do
     let(:item) { create(:item) }
 
-    describe '#current_stock' do
-      it '在庫がない場合は0を返すこと' do
-        expect(item.current_stock).to eq(0)
-      end
-
-      it '初期在庫が設定されている場合、その値を返すこと' do
-        create(:stock, item: item, quantity: 10, operation_type: :initial)
-        expect(item.current_stock).to eq(10)
-      end
-
-      it '入庫と出庫を合算した値を返すこと' do
-        create(:stock, item: item, quantity: 10, operation_type: :initial)
-        create(:stock, item: item, quantity: 5, operation_type: :addition)
-        create(:stock, item: item, quantity: -3, operation_type: :subtraction)
-        expect(item.current_stock).to eq(12)
-      end
-    end
-
     describe '#stock_history' do
       it '在庫履歴を新しい順に返すこと' do
         old_stock = create(:stock, item: item, operated_at: 1.day.ago)
@@ -103,6 +117,57 @@ RSpec.describe Item, type: :model do
         create_list(:stock, 3, item: item)
         expect { item.destroy }.to change(Stock, :count).by(-3)
       end
+    end
+  end
+
+  describe '#update_stock_quantity!' do
+    let(:user) { create(:user) }
+    let(:item) { create(:item, stock_quantity: 10) }
+
+    before do
+      allow(Current).to receive(:user).and_return(user)
+    end
+
+    context '在庫増加の場合' do
+      it '在庫履歴が作成されること' do
+        expect do
+          item.update_stock_quantity!(quantity: 5, operation_type: 'addition')
+        end.to change(Stock, :count).by(1)
+      end
+
+      it '在庫履歴の内容が正しいこと' do
+        item.update_stock_quantity!(quantity: 5, operation_type: 'addition')
+        stock = Stock.last
+
+        aggregate_failures do
+          expect(stock.quantity).to eq(5)
+          expect(stock.operated_at).to be_present
+          expect(stock.company).to eq(item.company)
+          expect(stock.user).to eq(user)
+        end
+      end
+    end
+
+    context '在庫減少の場合' do
+      it '在庫履歴が作成されること' do
+        expect do
+          item.update_stock_quantity!(quantity: 5, operation_type: 'subtraction')
+        end.to change(Stock, :count).by(1)
+
+        stock = Stock.last
+        expect(stock.quantity).to eq(-5)
+        expect(stock.operated_at).to be_present
+      end
+    end
+
+    it 'トランザクションがロールバックされること' do
+      allow(item).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
+
+      expect do
+        item.update_stock_quantity!(quantity: 5, operation_type: 'addition')
+      end.to raise_error(ActiveRecord::RecordInvalid)
+
+      expect(item.reload.stock_quantity).to eq 10
     end
   end
 end

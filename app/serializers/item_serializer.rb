@@ -3,7 +3,7 @@ class ItemSerializer < ApplicationSerializer
              :name,
              :description,
              :minimum_quantity,
-             :current_stock,
+             :stock_quantity,
              :unit,
              :url,
              :purchase_notes,
