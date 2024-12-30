@@ -2,7 +2,7 @@ module Api
   module V1
     class OrdersController < BaseController
       before_action :set_order, only: %i[show update approve reject order receive]
-      before_action :authorize_admin!, only: %i[approve reject]
+      before_action :authorize_admin!, only: %i[approve reject order receive]
 
       def index
         orders = current_company.orders
@@ -67,10 +67,7 @@ module Api
       end
 
       def receive
-        authorize @order
-
         @order.with_lock do
-          @order.receive!
           @order.receive_stock!
           render_success(@order)
         rescue ActiveRecord::RecordInvalid => e

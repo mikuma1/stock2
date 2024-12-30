@@ -3,39 +3,42 @@ FactoryBot.define do
     association :item
     association :company
     association :user
-    association :approver, factory: :user, role: :admin
-    quantity { rand(1..100) }
-    status { 'pending' }
+    quantity { 1 }
     note { 'テスト発注' }
+    status { :pending }
+
+    trait :pending do
+      status { :pending }
+    end
 
     trait :approved do
       after(:create) do |order|
-        order.approver ||= create(:user, :admin, company: order.company)
-        order.update!(status: 'approved')
-      end
-    end
-
-    trait :rejected do
-      after(:create) do |order|
-        order.approver ||= create(:user, :admin, company: order.company)
-        order.update!(status: 'rejected')
+        order.approver = create(:user, :admin, company: order.company)
+        order.update!(status: :approved)
       end
     end
 
     trait :ordered do
       after(:create) do |order|
-        order.approver ||= create(:user, :admin, company: order.company)
-        order.update!(status: 'approved')
-        order.update!(status: 'ordered', ordered_at: Time.current)
+        order.approver = create(:user, :admin, company: order.company)
+        order.update!(status: :approved)
+        order.update!(status: :ordered, ordered_at: Time.current)
       end
     end
 
     trait :received do
       after(:create) do |order|
-        order.approver ||= create(:user, :admin, company: order.company)
-        order.update!(status: 'approved')
-        order.update!(status: 'ordered', ordered_at: 1.day.ago)
-        order.update!(status: 'received', received_at: Time.current)
+        order.approver = create(:user, :admin, company: order.company)
+        order.update!(status: :approved)
+        order.update!(status: :ordered, ordered_at: Time.current)
+        order.update!(status: :received, received_at: Time.current)
+      end
+    end
+
+    trait :rejected do
+      after(:create) do |order|
+        order.approver = create(:user, :admin, company: order.company)
+        order.update!(status: :rejected)
       end
     end
   end

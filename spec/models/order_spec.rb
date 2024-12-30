@@ -92,4 +92,76 @@ RSpec.describe Order, type: :model do
       end
     end
   end
+
+  describe '#receive_stock!' do
+    let(:company) { create(:company) }
+    let(:admin) { create(:user, :admin, company: company) }
+    let(:item) { create(:item, company: company) }
+    let(:order) do
+      create(
+        :order, :ordered,
+        company: company,
+        item: item,
+        quantity: 5,
+        approver: admin
+      )
+    end
+
+    context '正常系' do
+      before do
+        order.approver = admin
+        order.save!
+      end
+
+      it '在庫履歴のユーザーと会社が正しいこと' do
+        order.receive_stock!
+        stock = Stock.last
+        expect(stock.user).to eq admin
+        expect(stock.company).to eq company
+      end
+
+      it '在庫履歴が作成されること' do
+        expect { order.receive_stock! }.to change(Stock, :count).by(1)
+      end
+
+      it '在庫履歴の数量が正しいこと' do
+        order.receive_stock!
+        expect(Stock.last.quantity).to eq 5
+      end
+
+      it '在庫履歴の操作タイプが正しいこと' do
+        order.receive_stock!
+        expect(Stock.last.operation_type).to eq 'addition'
+      end
+
+      it '受領日時が記録されること' do
+        order.receive_stock!
+        expect(order.received_at).to be_present
+      end
+    end
+
+    context '異常系' do
+      it 'トランザクションが正しく機能すること' do
+        allow(item.stocks).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
+        expect(Stock.count).to eq 0
+
+        expect do
+          order.receive_stock!
+        end.to raise_error(ActiveRecord::RecordInvalid)
+
+        expect(Stock.count).to eq 0
+      end
+
+      it '在庫履歴の作成に失敗した場合、受領日時が更新されないこと' do
+        allow(item.stocks).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
+        before_received_at = order.received_at
+
+        expect do
+          order.receive_stock!
+        end.to raise_error(ActiveRecord::RecordInvalid)
+
+        expect(order.reload.received_at).to eq before_received_at
+      end
+    end
+  end
 end
