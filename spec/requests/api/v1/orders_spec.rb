@@ -5,7 +5,7 @@ RSpec.describe 'Api::V1::Orders', type: :request do
   let(:admin) { create(:user, :admin, company: company) }
   let(:user) { create(:user, company: company) }
   let(:item) { create(:item, company: company) }
-  let(:order) { create(:order, company: company, user: user, item: item) }
+  let(:order) { create(:order, :pending, company: company, user: user, item: item, quantity: 5) }
 
   before do
     host! 'localhost'
@@ -152,7 +152,7 @@ RSpec.describe 'Api::V1::Orders', type: :request do
 
   describe 'PATCH /api/v1/orders/:id/receive' do
     def ordered_order
-      @ordered_order ||= create(:order, :ordered, company: company, user: user, item: item)
+      @ordered_order ||= create(:order, :ordered, company: company, user: user, item: item, approver: admin)
     end
 
     context '認証済み管理者の場合' do
@@ -160,11 +160,49 @@ RSpec.describe 'Api::V1::Orders', type: :request do
         sign_in admin
       end
 
-      it '発注済みの発注を受領済みにできること' do
-        patch receive_api_v1_order_path(ordered_order)
+      it '発注済みの発注を受領済みにし、在庫履歴を作成できること' do
+        expect do
+          patch receive_api_v1_order_path(ordered_order)
+        end.to change(Stock, :count).by(1)
         expect(response).to have_http_status(:ok)
+      end
+
+      it '受領済みの発注のステータスが正しく更新されること' do
+        patch receive_api_v1_order_path(ordered_order)
         expect(ordered_order.reload.status).to eq 'received'
         expect(ordered_order.received_at).to be_present
+      end
+
+      it '既に受領済みの発注は再度受領できないこと' do
+        ordered_order.update!(status: :received)
+
+        patch receive_api_v1_order_path(ordered_order)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json['error']).to include(I18n.t('errors.messages.unexpected_error'))
+      end
+
+      it '同時実行時に楽観的ロックが機能すること' do
+        same_order = Order.find(ordered_order.id)
+        ordered_order.receive!
+
+        patch receive_api_v1_order_path(same_order)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json['error']).to include(I18n.t('errors.messages.unexpected_error'))
+      end
+    end
+
+    context '認証済み一般ユーザーの場合' do
+      before do
+        sign_in user
+      end
+
+      it '発注を受領できないこと' do
+        patch receive_api_v1_order_path(ordered_order)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(ordered_order.reload.status).to eq 'ordered'
       end
     end
   end

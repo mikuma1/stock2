@@ -15,9 +15,24 @@ class Order < ApplicationRecord
   validates :quantity, presence: true, numericality: { greater_than: 0 }
   validates :status, presence: true
   validates :note, length: { maximum: 500 }
-  validates :approver, presence: true, if: -> { approved? || rejected? || ordered? || received? }
+  validate :validate_status_transition, if: :status_changed?
 
-  validate :validate_status_transition, if: :will_save_change_to_status?
+  def receive!
+    return false if received?
+
+    transaction do
+      update!(status: :received, received_at: Time.current)
+      create_stock_history!
+      true
+    end
+  end
+
+  def receive_stock!
+    return if receive!
+
+    errors.add(:base, :unexpected_error)
+    raise ActiveRecord::RecordInvalid, self
+  end
 
   private
 
@@ -34,6 +49,16 @@ class Order < ApplicationRecord
 
     return if allowed_transitions[status_was]&.include?(status)
 
-    errors.add(:status, :invalid_transition, from: status_was, to: status)
+    errors.add(:status, :invalid)
+  end
+
+  def create_stock_history!
+    item.stocks.create!(
+      quantity: quantity,
+      operation_type: :addition,
+      note: "発注品受領 (発注ID: #{id})",
+      user: approver,
+      company: company
+    )
   end
 end

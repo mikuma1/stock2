@@ -2,7 +2,7 @@ module Api
   module V1
     class OrdersController < BaseController
       before_action :set_order, only: %i[show update approve reject order receive]
-      before_action :authorize_admin!, only: %i[approve reject]
+      before_action :authorize_admin!, only: %i[approve reject order receive]
 
       def index
         orders = current_company.orders
@@ -67,12 +67,15 @@ module Api
       end
 
       def receive
-        @order.approver = current_user
-        if @order.update(status: :received, received_at: Time.current)
+        @order.with_lock do
+          @order.receive_stock!
           render_success(@order)
-        else
-          Rails.logger.error "Order receiving failed: #{@order.errors.full_messages.join(', ')}"
-          render_error(@order.errors.full_messages)
+        rescue ActiveRecord::RecordInvalid => e
+          Rails.logger.error "Order receiving failed: #{e.message}"
+          render_error(e.record.errors.full_messages)
+        rescue StandardError => e
+          Rails.logger.error "Unexpected error in order receiving: #{e.message}"
+          render_error([I18n.t('errors.messages.unexpected_error')])
         end
       end
 
