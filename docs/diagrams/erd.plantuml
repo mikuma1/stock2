@@ -1,0 +1,104 @@
+@startuml erd
+
+' 設定
+!define MASTER_MARK_COLOR Orange
+!define TRANSACTION_MARK_COLOR DeepSkyBlue
+skinparam class {
+    BackgroundColor White
+    BorderColor Black
+    ArrowColor Black
+}
+
+' エンティティ
+entity "Companies\n（企業）" as companies {
+    + id [PK]
+    --
+    name [string, NOT NULL]
+    description [string]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+entity "Departments\n（部署）" as departments {
+    + id [PK]
+    --
+    # company_id [FK]
+    name [string, NOT NULL]
+    description [string]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+entity "Categories\n（カテゴリ）" as categories {
+    + id [PK]
+    --
+    # company_id [FK]
+    name [string, NOT NULL]
+    description [string]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+entity "Items\n（消耗品）" as items {
+    + id [PK]
+    --
+    # company_id [FK]
+    # category_id [FK]
+    name [string, NOT NULL]
+    description [string]
+    stock_quantity [integer, NOT NULL]
+    minimum_quantity [integer]
+    unit [string]
+    url [string]
+    purchase_notes [string]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+entity "Stocks\n（在庫履歴）" as stocks {
+    + id [PK]
+    --
+    # item_id [FK]
+    quantity [integer, NOT NULL]
+    operation_type [enum, NOT NULL]
+    notes [string]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+entity "Orders\n（発注）" as orders {
+    + id [PK]
+    --
+    # item_id [FK]
+    # user_id [FK]
+    quantity [integer, NOT NULL]
+    status [enum, NOT NULL]
+    notes [string]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+entity "Users\n（ユーザー）" as users {
+    + id [PK]
+    --
+    # company_id [FK]
+    # department_id [FK]
+    email [string, NOT NULL]
+    name [string, NOT NULL]
+    role [enum, NOT NULL]
+    created_at [datetime]
+    updated_at [datetime]
+}
+
+' リレーションシップ
+companies ||--o{ departments
+companies ||--o{ categories
+companies ||--o{ items
+companies ||--o{ users
+departments ||--o{ users
+categories ||--o{ items
+items ||--o{ stocks
+items ||--o{ orders
+users ||--o{ orders
+
+@enduml

@@ -148,3 +148,17 @@ docker-compose -f docker-compose.production.yml exec web rails db:create db:migr
 - 404: リソースが見つからない
 - 422: バリデーションエラー
 - 500: サーバーエラー
+
+## ER図
+システムのデータベース設計は以下のER図の通りです：
+
+![ER図](docs/diagrams/erd.png)
+
+### テーブル構成
+- Companies（企業）: システムを利用する企業の情報
+- Departments（部署）: 企業内の部署情報
+- Categories（カテゴリ）: 消耗品の分類
+- Items（消耗品）: 管理対象の消耗品情報
+- Stocks（在庫履歴）: 在庫の入出庫履歴
+- Orders（発注）: 消耗品の発注情報
+- Users（ユーザー）: システムのユーザー情報
