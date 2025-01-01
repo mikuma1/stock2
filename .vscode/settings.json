@@ -14,5 +14,10 @@
   },
   "ruby.useBundler": true,
   "ruby.useLanguageServer": true,
-  "ruby.intellisense": "rubyLocate"
+  "ruby.intellisense": "rubyLocate",
+  "css.validate": false,
+  "tailwindCSS.emmetCompletions": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  }
 }
