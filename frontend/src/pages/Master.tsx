@@ -2,17 +2,36 @@ import { useState } from 'react';
 import CreateCategoryModal from '../components/categories/CreateCategoryModal';
 import CreateDepartmentModal from '../components/departments/CreateDepartmentModal';
 import EditCategoryModal from '../components/categories/EditCategoryModal';
+import DeleteCategoryModal from '../components/categories/DeleteCategoryModal';
 import DepartmentList from '../components/departments/DepartmentList';
+
+interface Category {
+  id: number;
+  name: string;
+}
 
 const Master = () => {
   const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
   const [isCreateDepartmentModalOpen, setIsCreateDepartmentModalOpen] = useState(false);
   const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<{ id: number; name: string; } | undefined>();
+  const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>();
 
-  const handleEditCategory = (category: { id: number; name: string; }) => {
+  const handleEditCategory = (category: Category) => {
     setSelectedCategory(category);
     setIsEditCategoryModalOpen(true);
+  };
+
+  const handleDeleteCategory = (category: Category) => {
+    setSelectedCategory(category);
+    setIsDeleteCategoryModalOpen(true);
+  };
+
+  const handleConfirmDeleteCategory = () => {
+    // TODO: カテゴリ削除の処理
+    console.log('カテゴリ削除:', selectedCategory);
+    setIsDeleteCategoryModalOpen(false);
+    setSelectedCategory(undefined);
   };
 
   return (
@@ -56,12 +75,20 @@ const Master = () => {
               ].map((category) => (
                 <div key={category.id} className="p-4 flex justify-between items-center">
                   <span className="text-sm text-gray-900">{category.name}</span>
-                  <button
-                    onClick={() => handleEditCategory(category)}
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    編集
-                  </button>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => handleEditCategory(category)}
+                      className="text-sm text-gray-600 hover:text-gray-900"
+                    >
+                      編集
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCategory(category)}
+                      className="text-sm text-red-600 hover:text-red-700"
+                    >
+                      削除
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -90,6 +117,15 @@ const Master = () => {
           setSelectedCategory(undefined);
         }}
         category={selectedCategory}
+      />
+      <DeleteCategoryModal
+        isOpen={isDeleteCategoryModalOpen}
+        onClose={() => {
+          setIsDeleteCategoryModalOpen(false);
+          setSelectedCategory(undefined);
+        }}
+        onConfirm={handleConfirmDeleteCategory}
+        categoryName={selectedCategory?.name ?? ''}
       />
     </div>
   );
