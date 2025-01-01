@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import EditDepartmentModal from './EditDepartmentModal';
 import DeleteUserModal from './DeleteUserModal';
+import DeleteDepartmentModal from './DeleteDepartmentModal';
 
 interface User {
   id: number;
@@ -22,6 +23,7 @@ interface DepartmentListProps {
 const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteUserModalOpen, setIsDeleteUserModalOpen] = useState(false);
+  const [isDeleteDepartmentModalOpen, setIsDeleteDepartmentModalOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | undefined>();
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
   const [expandedDepartmentId, setExpandedDepartmentId] = useState<number | null>(null);
@@ -31,7 +33,7 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
     {
       id: 1,
       name: '総務部',
-      userCount: 5,
+      userCount: 3,
       users: [
         { id: 1, name: '山田太郎', email: 'yamada@example.com' },
         { id: 2, name: '鈴木花子', email: 'suzuki@example.com' },
@@ -41,7 +43,7 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
     {
       id: 2,
       name: '営業部',
-      userCount: 8,
+      userCount: 2,
       users: [
         { id: 4, name: '佐藤次郎', email: 'sato@example.com' },
         { id: 5, name: '高橋三郎', email: 'takahashi@example.com' },
@@ -59,11 +61,23 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
     setIsDeleteUserModalOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleDeleteDepartment = (department: Department) => {
+    setSelectedDepartment(department);
+    setIsDeleteDepartmentModalOpen(true);
+  };
+
+  const handleConfirmDeleteUser = () => {
     // TODO: ユーザー削除の処理
     console.log('ユーザー削除:', selectedUser);
     setIsDeleteUserModalOpen(false);
     setSelectedUser(undefined);
+  };
+
+  const handleConfirmDeleteDepartment = () => {
+    // TODO: 部署削除の処理
+    console.log('部署削除:', selectedDepartment);
+    setIsDeleteDepartmentModalOpen(false);
+    setSelectedDepartment(undefined);
   };
 
   const toggleDepartment = (departmentId: number) => {
@@ -106,15 +120,26 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
                     <p className="text-xs text-gray-500">所属ユーザー: {department.userCount}名</p>
                   </div>
                 </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(department);
-                  }}
-                  className="text-sm text-gray-600 hover:text-gray-900"
-                >
-                  編集
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(department);
+                    }}
+                    className="text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    編集
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteDepartment(department);
+                    }}
+                    className="text-sm text-red-600 hover:text-red-700"
+                  >
+                    削除
+                  </button>
+                </div>
               </div>
               {expandedDepartmentId === department.id && (
                 <div className="bg-gray-50 px-4 py-3 space-y-3">
@@ -154,8 +179,19 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
           setIsDeleteUserModalOpen(false);
           setSelectedUser(undefined);
         }}
-        onConfirm={handleConfirmDelete}
+        onConfirm={handleConfirmDeleteUser}
         userName={selectedUser?.name ?? ''}
+      />
+
+      <DeleteDepartmentModal
+        isOpen={isDeleteDepartmentModalOpen}
+        onClose={() => {
+          setIsDeleteDepartmentModalOpen(false);
+          setSelectedDepartment(undefined);
+        }}
+        onConfirm={handleConfirmDeleteDepartment}
+        departmentName={selectedDepartment?.name ?? ''}
+        userCount={selectedDepartment?.userCount ?? 0}
       />
     </>
   );
