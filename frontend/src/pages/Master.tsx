@@ -1,4 +1,11 @@
+import { useState } from 'react';
+import CreateCategoryModal from '../components/categories/CreateCategoryModal';
+import CreateDepartmentModal from '../components/departments/CreateDepartmentModal';
+
 const Master = () => {
+  const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
+  const [isCreateDepartmentModalOpen, setIsCreateDepartmentModalOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div>
@@ -9,7 +16,10 @@ const Master = () => {
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="p-6 flex justify-between items-center border-b border-gray-200">
             <h2 className="text-lg font-bold text-gray-900">カテゴリ管理</h2>
-            <button className="text-primary hover:text-primary/70">
+            <button
+              onClick={() => setIsCreateCategoryModalOpen(true)}
+              className="text-primary hover:text-primary/70"
+            >
               新規登録
             </button>
           </div>
@@ -28,7 +38,10 @@ const Master = () => {
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="p-6 flex justify-between items-center border-b border-gray-200">
             <h2 className="text-lg font-bold text-gray-900">部署管理</h2>
-            <button className="text-primary hover:text-primary/70">
+            <button
+              onClick={() => setIsCreateDepartmentModalOpen(true)}
+              className="text-primary hover:text-primary/70"
+            >
               新規登録
             </button>
           </div>
@@ -47,6 +60,15 @@ const Master = () => {
           </div>
         </div>
       </div>
+
+      <CreateCategoryModal
+        isOpen={isCreateCategoryModalOpen}
+        onClose={() => setIsCreateCategoryModalOpen(false)}
+      />
+      <CreateDepartmentModal
+        isOpen={isCreateDepartmentModalOpen}
+        onClose={() => setIsCreateDepartmentModalOpen(false)}
+      />
     </div>
   );
 };
