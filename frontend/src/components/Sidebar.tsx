@@ -1,7 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useSidebar } from '../contexts/SidebarContext';
 
 const Sidebar = () => {
   const location = useLocation();
+  const { isOpen } = useSidebar();
 
   const getLinkStyle = (path: string) => {
     const baseStyle = "flex items-center gap-2 p-2 rounded-lg transition-colors";
@@ -14,7 +16,12 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-gray-200">
+    <aside className={`
+      fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-gray-200
+      transform transition-transform duration-200 ease-in-out
+      lg:translate-x-0
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+    `}>
       <nav className="p-4">
         <ul className="space-y-1">
           <li>
