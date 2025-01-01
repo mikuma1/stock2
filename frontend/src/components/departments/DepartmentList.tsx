@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import EditDepartmentModal from './EditDepartmentModal';
+import EditUserModal from './EditUserModal';
 import DeleteUserModal from './DeleteUserModal';
 import DeleteDepartmentModal from './DeleteDepartmentModal';
 
@@ -7,6 +8,7 @@ interface User {
   id: number;
   name: string;
   email: string;
+  departmentId: number;
 }
 
 interface Department {
@@ -22,6 +24,7 @@ interface DepartmentListProps {
 
 const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
   const [isDeleteUserModalOpen, setIsDeleteUserModalOpen] = useState(false);
   const [isDeleteDepartmentModalOpen, setIsDeleteDepartmentModalOpen] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | undefined>();
@@ -35,9 +38,9 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
       name: '総務部',
       userCount: 3,
       users: [
-        { id: 1, name: '山田太郎', email: 'yamada@example.com' },
-        { id: 2, name: '鈴木花子', email: 'suzuki@example.com' },
-        { id: 3, name: '田中一郎', email: 'tanaka@example.com' },
+        { id: 1, name: '山田太郎', email: 'yamada@example.com', departmentId: 1 },
+        { id: 2, name: '鈴木花子', email: 'suzuki@example.com', departmentId: 1 },
+        { id: 3, name: '田中一郎', email: 'tanaka@example.com', departmentId: 1 },
       ]
     },
     {
@@ -45,8 +48,8 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
       name: '営業部',
       userCount: 2,
       users: [
-        { id: 4, name: '佐藤次郎', email: 'sato@example.com' },
-        { id: 5, name: '高橋三郎', email: 'takahashi@example.com' },
+        { id: 4, name: '佐藤次郎', email: 'sato@example.com', departmentId: 2 },
+        { id: 5, name: '高橋三郎', email: 'takahashi@example.com', departmentId: 2 },
       ]
     },
   ];
@@ -54,6 +57,12 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
   const handleEdit = (department: Department) => {
     setSelectedDepartment(department);
     setIsEditModalOpen(true);
+  };
+
+  const handleEditUser = (user: User, department: Department) => {
+    setSelectedUser(user);
+    setSelectedDepartment(department);
+    setIsEditUserModalOpen(true);
   };
 
   const handleDeleteUser = (user: User) => {
@@ -149,12 +158,20 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
                         <p className="text-sm font-medium text-gray-900">{user.name}</p>
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
-                      <button
-                        onClick={() => handleDeleteUser(user)}
-                        className="text-sm text-red-600 hover:text-red-700"
-                      >
-                        削除
-                      </button>
+                      <div className="flex gap-4">
+                        <button
+                          onClick={() => handleEditUser(user, department)}
+                          className="text-sm text-gray-600 hover:text-gray-900"
+                        >
+                          編集
+                        </button>
+                        <button
+                          onClick={() => handleDeleteUser(user)}
+                          className="text-sm text-red-600 hover:text-red-700"
+                        >
+                          削除
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -171,6 +188,18 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
           setSelectedDepartment(undefined);
         }}
         department={selectedDepartment}
+      />
+
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        onClose={() => {
+          setIsEditUserModalOpen(false);
+          setSelectedUser(undefined);
+          setSelectedDepartment(undefined);
+        }}
+        user={selectedUser}
+        departments={departments}
+        currentDepartmentId={selectedDepartment?.id ?? 0}
       />
 
       <DeleteUserModal
