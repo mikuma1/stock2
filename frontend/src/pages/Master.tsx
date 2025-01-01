@@ -1,10 +1,26 @@
 import { useState } from 'react';
 import CreateCategoryModal from '../components/categories/CreateCategoryModal';
 import CreateDepartmentModal from '../components/departments/CreateDepartmentModal';
+import EditCategoryModal from '../components/categories/EditCategoryModal';
+import EditDepartmentModal from '../components/departments/EditDepartmentModal';
 
 const Master = () => {
   const [isCreateCategoryModalOpen, setIsCreateCategoryModalOpen] = useState(false);
   const [isCreateDepartmentModalOpen, setIsCreateDepartmentModalOpen] = useState(false);
+  const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] = useState(false);
+  const [isEditDepartmentModalOpen, setIsEditDepartmentModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<{ id: number; name: string; } | undefined>();
+  const [selectedDepartment, setSelectedDepartment] = useState<{ id: number; name: string; userCount: number; } | undefined>();
+
+  const handleEditCategory = (category: { id: number; name: string; }) => {
+    setSelectedCategory(category);
+    setIsEditCategoryModalOpen(true);
+  };
+
+  const handleEditDepartment = (department: { id: number; name: string; userCount: number; }) => {
+    setSelectedDepartment(department);
+    setIsEditDepartmentModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -24,10 +40,17 @@ const Master = () => {
             </button>
           </div>
           <div className="divide-y divide-gray-200">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="p-4 flex justify-between items-center">
-                <span className="text-sm text-gray-900">文具</span>
-                <button className="text-sm text-gray-600 hover:text-gray-900">
+            {[
+              { id: 1, name: '文具' },
+              { id: 2, name: 'オフィス用品' },
+              { id: 3, name: '備品' }
+            ].map((category) => (
+              <div key={category.id} className="p-4 flex justify-between items-center">
+                <span className="text-sm text-gray-900">{category.name}</span>
+                <button
+                  onClick={() => handleEditCategory(category)}
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
                   編集
                 </button>
               </div>
@@ -46,13 +69,20 @@ const Master = () => {
             </button>
           </div>
           <div className="divide-y divide-gray-200">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="p-4 flex justify-between items-center">
+            {[
+              { id: 1, name: '総務部', userCount: 5 },
+              { id: 2, name: '営業部', userCount: 8 },
+              { id: 3, name: '開発部', userCount: 12 }
+            ].map((department) => (
+              <div key={department.id} className="p-4 flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-900">総務部</p>
-                  <p className="text-xs text-gray-500">所属ユーザー: 5名</p>
+                  <p className="text-sm text-gray-900">{department.name}</p>
+                  <p className="text-xs text-gray-500">所属ユーザー: {department.userCount}名</p>
                 </div>
-                <button className="text-sm text-gray-600 hover:text-gray-900">
+                <button
+                  onClick={() => handleEditDepartment(department)}
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
                   編集
                 </button>
               </div>
@@ -68,6 +98,22 @@ const Master = () => {
       <CreateDepartmentModal
         isOpen={isCreateDepartmentModalOpen}
         onClose={() => setIsCreateDepartmentModalOpen(false)}
+      />
+      <EditCategoryModal
+        isOpen={isEditCategoryModalOpen}
+        onClose={() => {
+          setIsEditCategoryModalOpen(false);
+          setSelectedCategory(undefined);
+        }}
+        category={selectedCategory}
+      />
+      <EditDepartmentModal
+        isOpen={isEditDepartmentModalOpen}
+        onClose={() => {
+          setIsEditDepartmentModalOpen(false);
+          setSelectedDepartment(undefined);
+        }}
+        department={selectedDepartment}
       />
     </div>
   );
