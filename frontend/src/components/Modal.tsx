@@ -3,9 +3,10 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  hideDefaultFooter?: boolean;
 }
 
-const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+const Modal = ({ isOpen, onClose, title, children, hideDefaultFooter = false }: ModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -40,24 +41,26 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
             {children}
           </div>
 
-          {/* フッター */}
-          <div className="bg-gray-50 px-6 py-4 flex justify-end">
-            <div className="flex space-x-4">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500"
-              >
-                キャンセル
-              </button>
-              <button
-                type="submit"
-                form="modal-form"
-                className="bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-blue-700"
-              >
-                保存
-              </button>
+          {/* フフォルトフッター */}
+          {!hideDefaultFooter && (
+            <div className="bg-gray-50 px-6 py-4 flex justify-end">
+              <div className="flex space-x-4">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-500"
+                >
+                  キャンセル
+                </button>
+                <button
+                  type="submit"
+                  form="modal-form"
+                  className="bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-blue-700"
+                >
+                  保存
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
