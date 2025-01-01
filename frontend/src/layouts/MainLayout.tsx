@@ -7,7 +7,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
       <Header />
       <Sidebar />
       <main className="pt-16 pl-64">
-        <div className="p-6">
+        <div className="p-6 max-w-full">
           {children}
         </div>
       </main>

@@ -1,13 +1,14 @@
 import { BrowserRouter } from 'react-router-dom';
 import { SidebarProvider } from './contexts/SidebarContext';
 import MainLayout from './layouts/MainLayout';
+import Dashboard from './pages/Dashboard';
 
 const App = () => {
   return (
     <BrowserRouter>
       <SidebarProvider>
         <MainLayout>
-          <div>コンテンツ</div>
+          <Dashboard />
         </MainLayout>
       </SidebarProvider>
     </BrowserRouter>
