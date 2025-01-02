@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -7,6 +9,20 @@ interface ModalProps {
 }
 
 const Modal = ({ isOpen, onClose, title, children, hideDefaultFooter = false }: ModalProps) => {
+  // モーダルが開いているときはbodyのスクロールを無効にする
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // クリーンアップ関数
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
