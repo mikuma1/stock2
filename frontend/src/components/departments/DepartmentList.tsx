@@ -99,9 +99,9 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
           <h2 className="text-lg font-bold text-gray-900">部署管理</h2>
           <button
             onClick={onCreateClick}
-            className="text-primary hover:text-primary/70"
+            className="inline-flex items-center bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-blue-700"
           >
-            新規登録
+            新規作成
           </button>
         </div>
         <div className="divide-y divide-gray-200">
