@@ -2,12 +2,14 @@ import { useState } from 'react';
 import EditDepartmentModal from './EditDepartmentModal';
 import EditUserModal from './EditUserModal';
 import DeleteConfirmModal from '../DeleteConfirmModal';
+import CreateUserModal from './CreateUserModal';
 
 interface User {
   id: number;
   name: string;
   email: string;
   departmentId: number;
+  role: number;
 }
 
 interface Department {
@@ -29,6 +31,8 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
   const [selectedDepartment, setSelectedDepartment] = useState<Department | undefined>();
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
   const [expandedDepartmentId, setExpandedDepartmentId] = useState<number | null>(null);
+  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
+  const [selectedDepartmentForUser, setSelectedDepartmentForUser] = useState<Department | undefined>();
 
   // サンプルデータ
   const departments: Department[] = [
@@ -37,9 +41,9 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
       name: '総務部',
       userCount: 3,
       users: [
-        { id: 1, name: '山田太郎', email: 'yamada@example.com', departmentId: 1 },
-        { id: 2, name: '鈴木花子', email: 'suzuki@example.com', departmentId: 1 },
-        { id: 3, name: '田中一郎', email: 'tanaka@example.com', departmentId: 1 },
+        { id: 1, name: '山田太郎', email: 'yamada@example.com', departmentId: 1, role: 0 },
+        { id: 2, name: '鈴木花子', email: 'suzuki@example.com', departmentId: 1, role: 1 },
+        { id: 3, name: '田中一郎', email: 'tanaka@example.com', departmentId: 1, role: 1 },
       ]
     },
     {
@@ -47,8 +51,8 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
       name: '営業部',
       userCount: 2,
       users: [
-        { id: 4, name: '佐藤次郎', email: 'sato@example.com', departmentId: 2 },
-        { id: 5, name: '高橋三郎', email: 'takahashi@example.com', departmentId: 2 },
+        { id: 4, name: '佐藤次郎', email: 'sato@example.com', departmentId: 2, role: 1 },
+        { id: 5, name: '高橋三郎', email: 'takahashi@example.com', departmentId: 2, role: 1 },
       ]
     },
   ];
@@ -92,6 +96,11 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
     setExpandedDepartmentId(expandedDepartmentId === departmentId ? null : departmentId);
   };
 
+  const handleCreateUser = (department: Department) => {
+    setSelectedDepartmentForUser(department);
+    setIsCreateUserModalOpen(true);
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -99,9 +108,9 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
           <h2 className="text-lg font-bold text-gray-900">部署管理</h2>
           <button
             onClick={onCreateClick}
-            className="text-primary hover:text-primary/70"
+            className="inline-flex items-center bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-blue-700"
           >
-            新規登録
+            新規作成
           </button>
         </div>
         <div className="divide-y divide-gray-200">
@@ -150,29 +159,50 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
                 </div>
               </div>
               {expandedDepartmentId === department.id && (
-                <div className="bg-gray-50 px-4 py-3 space-y-3">
-                  {department.users.map((user) => (
-                    <div key={user.id} className="flex justify-between items-center">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                <div className="bg-gray-50 px-4 py-3">
+                  <div className="mb-3 flex justify-end">
+                    <button
+                      onClick={() => handleCreateUser(department)}
+                      className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      ユーザーを追加
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {department.users.map((user) => (
+                      <div key={user.id} className="flex justify-between items-center">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                            <span>{user.email}</span>
+                            {user.role === 0 && (
+                              <span className="border border-gray-300 rounded px-1.5 py-0.5">
+                                管理者
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-4">
+                          <button
+                            onClick={() => handleEditUser(user, department)}
+                            className="text-sm text-gray-600 hover:text-gray-900"
+                          >
+                            編集
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user)}
+                            className="text-sm text-red-600 hover:text-red-700"
+                          >
+                            削除
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex gap-4">
-                        <button
-                          onClick={() => handleEditUser(user, department)}
-                          className="text-sm text-gray-600 hover:text-gray-900"
-                        >
-                          編集
-                        </button>
-                        <button
-                          onClick={() => handleDeleteUser(user)}
-                          className="text-sm text-red-600 hover:text-red-700"
-                        >
-                          削除
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -233,6 +263,16 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
           </div>
         )}
       </DeleteConfirmModal>
+
+      <CreateUserModal
+        isOpen={isCreateUserModalOpen}
+        onClose={() => {
+          setIsCreateUserModalOpen(false);
+          setSelectedDepartmentForUser(undefined);
+        }}
+        departmentId={selectedDepartmentForUser?.id}
+        departmentName={selectedDepartmentForUser?.name}
+      />
     </>
   );
 };

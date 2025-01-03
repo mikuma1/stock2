@@ -1,10 +1,32 @@
 import { useState } from 'react';
 import Modal from '../components/Modal';
+import CreateItemModal from '../components/items/CreateItemModal';
+import UseItemModal from '../components/items/UseItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import OrderItemModal from '../components/items/OrderItemModal';
+
+interface Item {
+  id: number;
+  name: string;
+  category: string;
+  stock: number;
+  orderPoint: number;
+  unit: string;
+}
 
 const Items = () => {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [useItemId, setUseItemId] = useState<number | null>(null);
+  const [orderItemId, setOrderItemId] = useState<number | null>(null);
+
+  // サンプルデータ
+  const items: Item[] = [
+    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 50, orderPoint: 20, unit: '箱' },
+    { id: 2, name: 'ボールペン', category: '文具', stock: 100, orderPoint: 30, unit: '本' },
+    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 20, orderPoint: 5, unit: '個' },
+  ];
 
   const handleDelete = () => {
     // TODO: 削除処理
@@ -12,120 +34,151 @@ const Items = () => {
     setDeleteId(null);
   };
 
+  // 状態を判定する関数
+  const getStatus = (stock: number, orderPoint: number) => {
+    if (stock <= orderPoint) {
+      return { text: '発注必要', className: 'bg-red-100 text-red-800' };
+    }
+    return { text: '適正', className: 'bg-green-100 text-green-800' };
+  };
+
   return (
     <div className="space-y-6">
       {/* ヘッダー部分 */}
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">消耗品管理</h1>
-        <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90">
-          新規登録
+        <button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="inline-flex items-center bg-blue-600 text-white px-4 py-2 text-sm font-medium rounded-lg hover:bg-blue-700"
+        >
+          新規作成
         </button>
       </div>
 
       {/* PC用テーブル */}
-      <div className="hidden md:block bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                商品名
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                カテゴリ
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                在庫数
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                発注点
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                状態
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                操作
-              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-2/5">商品名</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/5">カテゴリ</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-24">在庫数</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-24">発注点</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">状態</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">操作</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <tr key={item} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  コピー用紙 A4
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  文具
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  50
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  20
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    適正
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => setSelectedId(item)}
-                    className="text-primary hover:text-primary/70 mr-4"
-                  >
-                    編集
-                  </button>
-                  <button
-                    onClick={() => setDeleteId(item)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    削除
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {items.map((item) => {
+              const status = getStatus(item.stock, item.orderPoint);
+              return (
+                <tr key={item.id}>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    <div className="truncate" title={item.name}>{item.name}</div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    <div className="truncate" title={item.category}>{item.category}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stock}{item.unit}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.orderPoint}{item.unit}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
+                      {status.text}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-end gap-4">
+                        <button
+                          onClick={() => setUseItemId(item.id)}
+                          className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                        >
+                          使用
+                        </button>
+                        <button
+                          onClick={() => setOrderItemId(item.id)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          発注依頼
+                        </button>
+                      </div>
+                      <div className="flex justify-end gap-4">
+                        <button
+                          onClick={() => setSelectedId(item.id)}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
+                          編集
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(item.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {/* モバイル用カードビュー */}
       <div className="md:hidden space-y-4">
-        {[1, 2, 3, 4, 5].map((item) => (
-          <div key={item} className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h3 className="text-sm font-medium text-gray-900">コピー用紙 A4</h3>
-                <p className="text-xs text-gray-500">文具</p>
+        {items.map((item) => {
+          const status = getStatus(item.stock, item.orderPoint);
+          return (
+            <div key={item.id} className="bg-white shadow rounded-lg p-4">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium text-gray-900 break-words">{item.name}</h3>
+                  <p className="text-xs text-gray-500 break-words">{item.category}</p>
+                  <div className="text-sm text-gray-500">
+                    <div>在庫数: {item.stock}{item.unit}</div>
+                    <div>発注点: {item.orderPoint}{item.unit}</div>
+                  </div>
+                </div>
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
+                  {status.text}
+                </span>
               </div>
-              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                適正
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <p className="text-xs text-gray-500">在庫数</p>
-                <p className="text-sm font-medium text-gray-900">50</p>
+
+              {/* 操作ボタン */}
+              <div className="mt-3 flex flex-col gap-2">
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => setUseItemId(item.id)}
+                    className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                  >
+                    使用
+                  </button>
+                  <button
+                    onClick={() => setOrderItemId(item.id)}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    発注依頼
+                  </button>
+                </div>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => setSelectedId(item.id)}
+                    className="text-gray-600 hover:text-gray-800 text-sm"
+                  >
+                    編集
+                  </button>
+                  <button
+                    onClick={() => setDeleteId(item.id)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    削除
+                  </button>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500">発注点</p>
-                <p className="text-sm font-medium text-gray-900">20</p>
-              </div>
             </div>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => setSelectedId(item)}
-                className="text-primary hover:text-primary/70 text-sm"
-              >
-                編集
-              </button>
-              <button
-                onClick={() => setDeleteId(item)}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                削除
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 編集モーダル */}
@@ -266,6 +319,27 @@ const Items = () => {
         message="削除してもよろしいですか？"
         targetName="コピー用紙 A4"
         hideDefaultFooter
+      />
+
+      {/* 使用モーダル */}
+      <UseItemModal
+        isOpen={useItemId !== null}
+        onClose={() => setUseItemId(null)}
+        itemId={useItemId}
+        unit={items.find(item => item.id === useItemId)?.unit ?? ''}
+      />
+
+      {/* モーダル群 */}
+      <CreateItemModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+
+      <OrderItemModal
+        isOpen={orderItemId !== null}
+        onClose={() => setOrderItemId(null)}
+        itemId={orderItemId}
+        unit={items.find(item => item.id === orderItemId)?.unit ?? ''}
       />
     </div>
   );
