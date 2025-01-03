@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import EditDepartmentModal from './EditDepartmentModal';
 import EditUserModal from './EditUserModal';
-import DeleteUserModal from './DeleteUserModal';
-import DeleteDepartmentModal from './DeleteDepartmentModal';
+import DeleteConfirmModal from '../DeleteConfirmModal';
 
 interface User {
   id: number;
@@ -202,26 +201,38 @@ const DepartmentList = ({ onCreateClick }: DepartmentListProps) => {
         currentDepartmentId={selectedDepartment?.id ?? 0}
       />
 
-      <DeleteUserModal
+      <DeleteConfirmModal
         isOpen={isDeleteUserModalOpen}
         onClose={() => {
           setIsDeleteUserModalOpen(false);
           setSelectedUser(undefined);
         }}
-        onConfirm={handleConfirmDeleteUser}
-        userName={selectedUser?.name ?? ''}
+        onDelete={handleConfirmDeleteUser}
+        title="ユーザーの削除"
+        message="削除してもよろしいですか？"
+        targetName={selectedUser?.name ?? ''}
+        hideDefaultFooter
       />
 
-      <DeleteDepartmentModal
+      <DeleteConfirmModal
         isOpen={isDeleteDepartmentModalOpen}
         onClose={() => {
           setIsDeleteDepartmentModalOpen(false);
           setSelectedDepartment(undefined);
         }}
-        onConfirm={handleConfirmDeleteDepartment}
-        departmentName={selectedDepartment?.name ?? ''}
-        userCount={selectedDepartment?.userCount ?? 0}
-      />
+        onDelete={handleConfirmDeleteDepartment}
+        title="部署の削除"
+        message="削除してもよろしいですか？"
+        targetName={selectedDepartment?.name ?? ''}
+        hideDefaultFooter
+      >
+        {selectedDepartment && selectedDepartment.userCount > 0 && (
+          <div className="text-xs text-red-500 space-y-1 mt-2">
+            <p>※この部署には{selectedDepartment.userCount}名のユーザーが所属しています。</p>
+            <p>※削除する前に、所属ユーザーを他の部署に移動させてください。</p>
+          </div>
+        )}
+      </DeleteConfirmModal>
     </>
   );
 };

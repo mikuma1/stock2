@@ -1,8 +1,16 @@
 import { useState } from 'react';
 import Modal from '../components/Modal';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 const Items = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  const handleDelete = () => {
+    // TODO: 削除処理
+    console.log('削除:', deleteId);
+    setDeleteId(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -66,7 +74,10 @@ const Items = () => {
                   >
                     編集
                   </button>
-                  <button className="text-red-600 hover:text-red-800">
+                  <button
+                    onClick={() => setDeleteId(item)}
+                    className="text-red-600 hover:text-red-800"
+                  >
                     削除
                   </button>
                 </td>
@@ -106,7 +117,10 @@ const Items = () => {
               >
                 編集
               </button>
-              <button className="text-red-600 hover:text-red-800 text-sm">
+              <button
+                onClick={() => setDeleteId(item)}
+                className="text-red-600 hover:text-red-800 text-sm"
+              >
                 削除
               </button>
             </div>
@@ -242,6 +256,17 @@ const Items = () => {
           </div>
         </form>
       </Modal>
+
+      {/* 削除確認モーダル */}
+      <DeleteConfirmModal
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        onDelete={handleDelete}
+        title="消耗品の削除"
+        message="削除してもよろしいですか？"
+        targetName="コピー用紙 A4"
+        hideDefaultFooter
+      />
     </div>
   );
 };
