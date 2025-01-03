@@ -1,4 +1,9 @@
+import { useState } from 'react';
+import Modal from '../components/Modal';
+
 const Items = () => {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
   return (
     <div className="space-y-6">
       {/* ヘッダー部分 */}
@@ -55,7 +60,10 @@ const Items = () => {
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button className="text-primary hover:text-primary/70 mr-4">
+                  <button
+                    onClick={() => setSelectedId(item)}
+                    className="text-primary hover:text-primary/70 mr-4"
+                  >
                     編集
                   </button>
                   <button className="text-red-600 hover:text-red-800">
@@ -92,7 +100,10 @@ const Items = () => {
               </div>
             </div>
             <div className="flex justify-end gap-4">
-              <button className="text-primary hover:text-primary/70 text-sm">
+              <button
+                onClick={() => setSelectedId(item)}
+                className="text-primary hover:text-primary/70 text-sm"
+              >
                 編集
               </button>
               <button className="text-red-600 hover:text-red-800 text-sm">
@@ -102,6 +113,135 @@ const Items = () => {
           </div>
         ))}
       </div>
+
+      {/* 編集モーダル */}
+      <Modal
+        isOpen={selectedId !== null}
+        onClose={() => setSelectedId(null)}
+        title="消耗品編集"
+      >
+        <form id="modal-form">
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                <span className="flex items-center gap-1">
+                  商品名
+                  <span className="text-red-500 text-xs">*必須</span>
+                </span>
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="コピー用紙 A4"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+                <span className="flex items-center gap-1">
+                  カテゴリ
+                  <span className="text-red-500 text-xs">*必須</span>
+                </span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                required
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="文具"
+              >
+                <option value="文具">文具</option>
+                <option value="オフィス用品">オフィス用品</option>
+                <option value="衛生用品">衛生用品</option>
+                <option value="キッチン用品">キッチン用品</option>
+                <option value="その他">その他</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
+                <span className="flex items-center gap-1">
+                  単位
+                  <span className="text-red-500 text-xs">*必須</span>
+                </span>
+              </label>
+              <input
+                type="text"
+                id="unit"
+                name="unit"
+                required
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="箱"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+                <span className="flex items-center gap-1">
+                  在庫数
+                  <span className="text-red-500 text-xs">*必須</span>
+                </span>
+              </label>
+              <input
+                type="number"
+                id="stock"
+                name="stock"
+                required
+                min="0"
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="50"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="threshold" className="block text-sm font-medium text-gray-700">
+                <span className="flex items-center gap-1">
+                  発注点
+                  <span className="text-red-500 text-xs">*必須</span>
+                </span>
+              </label>
+              <input
+                type="number"
+                id="threshold"
+                name="threshold"
+                required
+                min="0"
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="20"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="url" className="block text-sm font-medium text-gray-700">
+                URL
+              </label>
+              <input
+                type="url"
+                id="url"
+                name="url"
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="https://example.com"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="memo" className="block text-sm font-medium text-gray-700">
+                メモ
+              </label>
+              <textarea
+                id="memo"
+                name="memo"
+                rows={3}
+                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="メモを入力"
+              />
+            </div>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
