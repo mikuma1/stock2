@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import Modal from '../components/Modal';
 import DeliveryConfirmModal from '../components/orders/DeliveryConfirmModal';
+import ApprovalModal from '../components/orders/ApprovalModal';
 
 const Orders = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
+  const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<{
     id: number;
     productName: string;
     orderedQuantity: number;
     unit: string;
+    requester?: string;
+    department?: string;
   } | null>(null);
 
   // 仮のデータ構造（後でAPIから取得するデータ）
@@ -72,13 +76,31 @@ const Orders = () => {
   ];
 
   const handleDeliveryConfirm = (item: number) => {
+    const order = orders.find(o => o.id === item);
+    if (!order) return;
+
     setSelectedOrder({
-      id: item,
-      productName: 'コピー用紙 A4',
-      orderedQuantity: 100,
-      unit: '箱'
+      id: order.id,
+      productName: order.productName,
+      orderedQuantity: order.quantity,
+      unit: order.unit
     });
     setIsDeliveryModalOpen(true);
+  };
+
+  const handleApproval = (item: number) => {
+    const order = orders.find(o => o.id === item);
+    if (!order) return;
+
+    setSelectedOrder({
+      id: order.id,
+      productName: order.productName,
+      orderedQuantity: order.quantity,
+      unit: order.unit,
+      requester: order.requester,
+      department: order.department
+    });
+    setIsApprovalModalOpen(true);
   };
 
   return (
@@ -142,6 +164,14 @@ const Orders = () => {
                       納品
                     </button>
                   )}
+                  {order.status === '承認待ち' && (
+                    <button
+                      onClick={() => handleApproval(order.id)}
+                      className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                    >
+                      承認
+                    </button>
+                  )}
                   <button
                     onClick={() => setSelectedId(order.id)}
                     className="text-gray-600 hover:text-gray-900"
@@ -185,6 +215,14 @@ const Orders = () => {
                   className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
                 >
                   納品
+                </button>
+              )}
+              {order.status === '承認待ち' && (
+                <button
+                  onClick={() => handleApproval(order.id)}
+                  className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
+                >
+                  承認
                 </button>
               )}
               <button
@@ -292,6 +330,21 @@ const Orders = () => {
         productName={selectedOrder?.productName}
         orderedQuantity={selectedOrder?.orderedQuantity}
         unit={selectedOrder?.unit}
+      />
+
+      {/* 承認モーダル */}
+      <ApprovalModal
+        isOpen={isApprovalModalOpen}
+        onClose={() => {
+          setIsApprovalModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        orderNumber={selectedOrder?.id.toString()}
+        productName={selectedOrder?.productName}
+        quantity={selectedOrder?.orderedQuantity}
+        unit={selectedOrder?.unit}
+        requester={selectedOrder?.requester}
+        department={selectedOrder?.department}
       />
     </div>
   );
