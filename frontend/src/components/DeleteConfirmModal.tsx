@@ -8,6 +8,7 @@ interface DeleteConfirmModalProps {
   message: string;
   targetName: string;
   hideDefaultFooter?: boolean;
+  children?: React.ReactNode;
 }
 
 const DeleteConfirmModal = ({
@@ -17,6 +18,7 @@ const DeleteConfirmModal = ({
   title,
   message,
   targetName,
+  children,
 }: DeleteConfirmModalProps) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} hideDefaultFooter>
@@ -24,6 +26,7 @@ const DeleteConfirmModal = ({
         <div className="space-y-2">
           <p className="text-sm text-gray-500">「{targetName}」を{message}</p>
           <p className="text-sm text-red-500">※この操作は取り消せません。</p>
+          {children}
         </div>
         <div className="flex justify-end gap-3">
           <button

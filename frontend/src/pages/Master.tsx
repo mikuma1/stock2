@@ -2,8 +2,8 @@ import { useState } from 'react';
 import CreateCategoryModal from '../components/categories/CreateCategoryModal';
 import CreateDepartmentModal from '../components/departments/CreateDepartmentModal';
 import EditCategoryModal from '../components/categories/EditCategoryModal';
-import DeleteCategoryModal from '../components/categories/DeleteCategoryModal';
 import DepartmentList from '../components/departments/DepartmentList';
+import DeleteConfirmModal from '../components/DeleteConfirmModal';
 
 interface Category {
   id: number;
@@ -118,14 +118,17 @@ const Master = () => {
         }}
         category={selectedCategory}
       />
-      <DeleteCategoryModal
+      <DeleteConfirmModal
         isOpen={isDeleteCategoryModalOpen}
         onClose={() => {
           setIsDeleteCategoryModalOpen(false);
           setSelectedCategory(undefined);
         }}
-        onConfirm={handleConfirmDeleteCategory}
-        categoryName={selectedCategory?.name ?? ''}
+        onDelete={handleConfirmDeleteCategory}
+        title="カテゴリの削除"
+        message="削除してもよろしいですか？"
+        targetName={selectedCategory?.name ?? ''}
+        hideDefaultFooter
       />
     </div>
   );
