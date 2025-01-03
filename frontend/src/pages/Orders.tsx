@@ -2,11 +2,13 @@ import { useState } from 'react';
 import Modal from '../components/Modal';
 import DeliveryConfirmModal from '../components/orders/DeliveryConfirmModal';
 import ApprovalModal from '../components/orders/ApprovalModal';
+import OrderModal from '../components/orders/OrderModal';
 
 const Orders = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isDeliveryModalOpen, setIsDeliveryModalOpen] = useState(false);
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<{
     id: number;
     productName: string;
@@ -14,6 +16,7 @@ const Orders = () => {
     unit: string;
     requester?: string;
     department?: string;
+    url?: string;
   } | null>(null);
 
   // 仮のデータ構造（後でAPIから取得するデータ）
@@ -28,6 +31,7 @@ const Orders = () => {
       status: '発注中',
       department: '総務部',
       requester: '鈴木 一郎',
+      url: 'https://example.com/paper-a4',
     },
     {
       id: 2,
@@ -39,6 +43,7 @@ const Orders = () => {
       status: '納品済',
       department: '営業部',
       requester: '田中 花子',
+      url: 'https://example.com/pen-black',
     },
     {
       id: 3,
@@ -50,6 +55,7 @@ const Orders = () => {
       status: '承認待ち',
       department: '人事部',
       requester: '山田 太郎',
+      url: 'https://example.com/clear-file',
     },
     {
       id: 4,
@@ -61,6 +67,7 @@ const Orders = () => {
       status: '却下',
       department: '経理部',
       requester: '佐藤 次郎',
+      url: 'https://example.com/staples',
     },
     {
       id: 5,
@@ -72,6 +79,30 @@ const Orders = () => {
       status: '発注中',
       department: '開発部',
       requester: '高橋 三郎',
+      url: 'https://example.com/mechanical-pencil',
+    },
+    {
+      id: 6,
+      orderDate: '2024/01/10',
+      productName: 'ふせん',
+      quantity: 150,
+      unit: '個',
+      deliveryDate: '2024/01/15',
+      status: '承認済',
+      department: '営業部',
+      requester: '木村 花子',
+      url: 'https://example.com/sticky-notes',
+    },
+    {
+      id: 7,
+      orderDate: '2024/01/09',
+      productName: '修正テープ',
+      quantity: 40,
+      unit: '個',
+      deliveryDate: '2024/01/14',
+      status: '承認済',
+      department: '総務部',
+      requester: '中村 四郎',
     }
   ];
 
@@ -101,6 +132,22 @@ const Orders = () => {
       department: order.department
     });
     setIsApprovalModalOpen(true);
+  };
+
+  const handleOrder = (id: number) => {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+
+    setSelectedOrder({
+      id: order.id,
+      productName: order.productName,
+      orderedQuantity: order.quantity,
+      unit: order.unit,
+      requester: order.requester,
+      department: order.department,
+      url: order.url
+    });
+    setIsOrderModalOpen(true);
   };
 
   return (
@@ -172,6 +219,14 @@ const Orders = () => {
                       承認
                     </button>
                   )}
+                  {order.status === '承認済' && (
+                    <button
+                      onClick={() => handleOrder(order.id)}
+                      className="bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700"
+                    >
+                      発注
+                    </button>
+                  )}
                   <button
                     onClick={() => setSelectedId(order.id)}
                     className="text-gray-600 hover:text-gray-900"
@@ -223,6 +278,14 @@ const Orders = () => {
                   className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700"
                 >
                   承認
+                </button>
+              )}
+              {order.status === '承認済' && (
+                <button
+                  onClick={() => handleOrder(order.id)}
+                  className="bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-orange-700"
+                >
+                  発注
                 </button>
               )}
               <button
@@ -345,6 +408,22 @@ const Orders = () => {
         unit={selectedOrder?.unit}
         requester={selectedOrder?.requester}
         department={selectedOrder?.department}
+      />
+
+      {/* 発注モーダル */}
+      <OrderModal
+        isOpen={isOrderModalOpen}
+        onClose={() => {
+          setIsOrderModalOpen(false);
+          setSelectedOrder(null);
+        }}
+        orderNumber={selectedOrder?.id.toString()}
+        productName={selectedOrder?.productName}
+        quantity={selectedOrder?.orderedQuantity}
+        unit={selectedOrder?.unit}
+        requester={selectedOrder?.requester}
+        department={selectedOrder?.department}
+        url={selectedOrder?.url}
       />
     </div>
   );
