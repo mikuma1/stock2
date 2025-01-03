@@ -3,6 +3,7 @@ import Modal from '../components/Modal';
 import CreateItemModal from '../components/items/CreateItemModal';
 import UseItemModal from '../components/items/UseItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
+import OrderItemModal from '../components/items/OrderItemModal';
 
 interface Item {
   id: number;
@@ -18,6 +19,7 @@ const Items = () => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [useItemId, setUseItemId] = useState<number | null>(null);
+  const [orderItemId, setOrderItemId] = useState<number | null>(null);
 
   // サンプルデータ
   const items: Item[] = [
@@ -85,25 +87,35 @@ const Items = () => {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
-                    <div className="flex justify-end gap-4">
-                      <button
-                        onClick={() => setUseItemId(item.id)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        使用
-                      </button>
-                      <button
-                        onClick={() => setSelectedId(item.id)}
-                        className="text-gray-600 hover:text-gray-800"
-                      >
-                        編集
-                      </button>
-                      <button
-                        onClick={() => setDeleteId(item.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        削除
-                      </button>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex justify-end gap-4">
+                        <button
+                          onClick={() => setUseItemId(item.id)}
+                          className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                        >
+                          使用
+                        </button>
+                        <button
+                          onClick={() => setOrderItemId(item.id)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          発注依頼
+                        </button>
+                      </div>
+                      <div className="flex justify-end gap-4">
+                        <button
+                          onClick={() => setSelectedId(item.id)}
+                          className="text-gray-600 hover:text-gray-800"
+                        >
+                          編集
+                        </button>
+                        <button
+                          onClick={() => setDeleteId(item.id)}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          削除
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -119,39 +131,50 @@ const Items = () => {
           const status = getStatus(item.stock, item.orderPoint);
           return (
             <div key={item.id} className="bg-white shadow rounded-lg p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div className="space-y-1 flex-1 mr-2">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
                   <h3 className="text-sm font-medium text-gray-900 break-words">{item.name}</h3>
                   <p className="text-xs text-gray-500 break-words">{item.category}</p>
+                  <div className="text-sm text-gray-500">
+                    <div>在庫数: {item.stock}{item.unit}</div>
+                    <div>発注点: {item.orderPoint}{item.unit}</div>
+                  </div>
                 </div>
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full shrink-0 ${status.className}`}>
+                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
                   {status.text}
                 </span>
               </div>
-              <div className="mt-4 flex justify-end gap-4">
-                <button
-                  onClick={() => setUseItemId(item.id)}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  使用
-                </button>
-                <button
-                  onClick={() => setSelectedId(item.id)}
-                  className="text-gray-600 hover:text-gray-800 text-sm"
-                >
-                  編集
-                </button>
-                <button
-                  onClick={() => setDeleteId(item.id)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  削除
-                </button>
-              </div>
-              <div className="text-sm text-gray-500">
-                <div>カテゴリ: {item.category}</div>
-                <div>在庫数: {item.stock}{item.unit}</div>
-                <div>発注点: {item.orderPoint}{item.unit}</div>
+
+              {/* 操作ボタン */}
+              <div className="mt-3 flex flex-col gap-2">
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => setUseItemId(item.id)}
+                    className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
+                  >
+                    使用
+                  </button>
+                  <button
+                    onClick={() => setOrderItemId(item.id)}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    発注依頼
+                  </button>
+                </div>
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={() => setSelectedId(item.id)}
+                    className="text-gray-600 hover:text-gray-800 text-sm"
+                  >
+                    編集
+                  </button>
+                  <button
+                    onClick={() => setDeleteId(item.id)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    削除
+                  </button>
+                </div>
               </div>
             </div>
           );
@@ -303,12 +326,20 @@ const Items = () => {
         isOpen={useItemId !== null}
         onClose={() => setUseItemId(null)}
         itemId={useItemId}
+        unit={items.find(item => item.id === useItemId)?.unit ?? ''}
       />
 
       {/* モーダル群 */}
       <CreateItemModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
+      />
+
+      <OrderItemModal
+        isOpen={orderItemId !== null}
+        onClose={() => setOrderItemId(null)}
+        itemId={orderItemId}
+        unit={items.find(item => item.id === orderItemId)?.unit ?? ''}
       />
     </div>
   );
