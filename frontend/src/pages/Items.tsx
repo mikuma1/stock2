@@ -222,6 +222,7 @@ const Items = () => {
                 required
                 className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
                 defaultValue="コピー用紙 A4"
+                placeholder="コピー用紙 A4"
               />
             </div>
 
@@ -248,7 +249,7 @@ const Items = () => {
             </div>
 
             <div>
-              <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="consumptionUnit" className="block text-sm font-medium text-gray-700">
                 <span className="flex items-center gap-1">
                   単位
                   <span className="text-red-500 text-xs">*必須</span>
@@ -256,53 +257,103 @@ const Items = () => {
               </label>
               <input
                 type="text"
-                id="unit"
-                name="unit"
+                id="consumptionUnit"
+                name="consumptionUnit"
                 required
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="箱"
+                className="mt-1 block w-24 rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
+                defaultValue="枚"
+                placeholder="枚"
               />
             </div>
 
-            <div>
-              <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  在庫数
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
-              </label>
-              <input
-                type="number"
-                id="stock"
-                name="stock"
-                required
-                min="0"
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="50"
-              />
+            {/* 発注情報 */}
+            <div className="space-y-6 bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-900">発注情報</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label htmlFor="unitsPerOrder" className="block text-sm font-medium text-gray-700">
+                    <span className="flex items-center gap-1">
+                      1発注単位あたりの数量
+                      <span className="text-red-500 text-xs">*必須</span>
+                    </span>
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      id="unitsPerOrder"
+                      name="unitsPerOrder"
+                      required
+                      className="block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2 text-right"
+                      defaultValue="100"
+                      placeholder="100"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 消費情報 */}
+            <div className="space-y-6 bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-900">消費情報</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+                    <span className="flex items-center gap-1">
+                      現在の在庫数
+                      <span className="text-red-500 text-xs">*必須</span>
+                    </span>
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      id="stock"
+                      name="stock"
+                      required
+                      className="block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2 text-right"
+                      defaultValue="1,000"
+                      placeholder="1,000"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="orderPoint" className="block text-sm font-medium text-gray-700">
+                    <span className="flex items-center gap-1">
+                      発注点
+                      <span className="text-red-500 text-xs">*必須</span>
+                    </span>
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="text"
+                      id="orderPoint"
+                      name="orderPoint"
+                      required
+                      className="block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2 text-right"
+                      defaultValue="300"
+                      placeholder="300"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div>
-              <label htmlFor="threshold" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  発注点
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                保管場所
               </label>
               <input
-                type="number"
-                id="threshold"
-                name="threshold"
-                required
-                min="0"
+                type="text"
+                id="location"
+                name="location"
                 className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="20"
+                defaultValue="1F 文具棚A"
+                placeholder="1F 文具棚A"
               />
             </div>
 
             <div>
               <label htmlFor="url" className="block text-sm font-medium text-gray-700">
-                URL
+                発注URL
               </label>
               <input
                 type="url"
@@ -310,19 +361,7 @@ const Items = () => {
                 name="url"
                 className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
                 defaultValue="https://example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="memo" className="block text-sm font-medium text-gray-700">
-                メモ
-              </label>
-              <textarea
-                id="memo"
-                name="memo"
-                rows={3}
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="メモを入力"
+                placeholder="https://example.com"
               />
             </div>
           </div>
