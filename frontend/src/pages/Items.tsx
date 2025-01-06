@@ -12,6 +12,7 @@ interface Item {
   stock: number;
   orderPoint: number;
   unit: string;
+  location?: string;
 }
 
 const Items = () => {
@@ -23,9 +24,12 @@ const Items = () => {
 
   // サンプルデータ
   const items: Item[] = [
-    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 50, orderPoint: 20, unit: '箱' },
-    { id: 2, name: 'ボールペン', category: '文具', stock: 100, orderPoint: 30, unit: '本' },
-    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 20, orderPoint: 5, unit: '個' },
+    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 50, orderPoint: 20, unit: '箱', location: '1F 文具棚A' },
+    { id: 2, name: 'ボールペン', category: '文具', stock: 100, orderPoint: 30, unit: '本', location: '1F 文具棚B' },
+    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 20, orderPoint: 5, unit: '個', location: '2F 収納庫' },
+    { id: 4, name: 'クリアファイル', category: '文具', stock: 150, orderPoint: 30, unit: '枚', location: '3F 大会議室横 備品保管庫 A列 2段目' },
+    { id: 5, name: '付箋', category: '文具', stock: 80, orderPoint: 20, unit: '個', location: '1F 総務部エリア 文具保管庫 B-5' },
+    { id: 6, name: 'マスク', category: '衛生用品', stock: 200, orderPoint: 50, unit: '枚', location: '2F 防災倉庫 衛生用品コーナー 棚番号C-12' },
   ];
 
   const handleDelete = () => {
@@ -65,6 +69,7 @@ const Items = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-24">在庫数</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap w-24">発注点</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">状態</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[160px] w-1/5">保管場所</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">操作</th>
             </tr>
           </thead>
@@ -85,6 +90,11 @@ const Items = () => {
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
                       {status.text}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-900">
+                    <div className="whitespace-pre-wrap break-words line-clamp-3 min-w-[160px]" title={item.location}>
+                      {item.location ?? '-'}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
                     <div className="flex flex-col gap-2">
@@ -138,6 +148,9 @@ const Items = () => {
                   <div className="text-sm text-gray-500">
                     <div>在庫数: {item.stock}{item.unit}</div>
                     <div>発注点: {item.orderPoint}{item.unit}</div>
+                    <div className="whitespace-pre-wrap break-words line-clamp-3" title={item.location}>
+                      保管場所: {item.location ?? '-'}
+                    </div>
                   </div>
                 </div>
                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
