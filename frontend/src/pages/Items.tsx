@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import Modal from '../components/Modal';
-import CreateItemModal from '../components/items/CreateItemModal';
 import UseItemModal from '../components/items/UseItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import OrderItemModal from '../components/items/OrderItemModal';
+import ItemFormModal from '../components/items/ItemFormModal';
 
 interface Item {
   id: number;
@@ -11,7 +10,9 @@ interface Item {
   category: string;
   stock: number;
   orderPoint: number;
-  unit: string;
+  orderUnit: string;
+  consumptionUnit: string;
+  unitsPerOrder: number;
   location?: string;
 }
 
@@ -24,12 +25,12 @@ const Items = () => {
 
   // サンプルデータ
   const items: Item[] = [
-    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 50, orderPoint: 20, unit: '箱', location: '1F 文具棚A' },
-    { id: 2, name: 'ボールペン', category: '文具', stock: 100, orderPoint: 30, unit: '本', location: '1F 文具棚B' },
-    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 20, orderPoint: 5, unit: '個', location: '2F 収納庫' },
-    { id: 4, name: 'クリアファイル', category: '文具', stock: 150, orderPoint: 30, unit: '枚', location: '3F 大会議室横 備品保管庫 A列 2段目' },
-    { id: 5, name: '付箋', category: '文具', stock: 80, orderPoint: 20, unit: '個', location: '1F 総務部エリア 文具保管庫 B-5' },
-    { id: 6, name: 'マスク', category: '衛生用品', stock: 200, orderPoint: 50, unit: '枚', location: '2F 防災倉庫 衛生用品コーナー 棚番号C-12' },
+    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 25000, orderPoint: 10000, orderUnit: '箱', consumptionUnit: '枚', unitsPerOrder: 500, location: '1F 文具棚A' },
+    { id: 2, name: 'ボールペン', category: '文具', stock: 48, orderPoint: 24, orderUnit: '箱', consumptionUnit: '本', unitsPerOrder: 12, location: '1F 文具棚B' },
+    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 30, orderPoint: 10, orderUnit: '箱', consumptionUnit: '個', unitsPerOrder: 10, location: '2F 収納庫' },
+    { id: 4, name: 'クリアファイル', category: '文具', stock: 100, orderPoint: 30, orderUnit: 'パック', consumptionUnit: '枚', unitsPerOrder: 10, location: '3F 大会議室横 備品保管庫 A列 2段目' },
+    { id: 5, name: '付箋', category: '文具', stock: 50, orderPoint: 15, orderUnit: 'パック', consumptionUnit: '個', unitsPerOrder: 5, location: '1F 総務部エリア 文具保管庫 B-5' },
+    { id: 6, name: 'マスク', category: '衛生用品', stock: 300, orderPoint: 100, orderUnit: '箱', consumptionUnit: '枚', unitsPerOrder: 50, location: '2F 防災倉庫 衛生用品コーナー 棚番号C-12' },
   ];
 
   const handleDelete = () => {
@@ -45,6 +46,9 @@ const Items = () => {
     }
     return { text: '適正', className: 'bg-green-100 text-green-800' };
   };
+
+  // 選択されたアイテムを取得
+  const selectedItem = items.find(item => item.id === selectedId);
 
   return (
     <div className="space-y-6">
@@ -84,8 +88,12 @@ const Items = () => {
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <div className="truncate" title={item.category}>{item.category}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stock}{item.unit}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.orderPoint}{item.unit}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.stock}{item.consumptionUnit}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {item.orderPoint}{item.consumptionUnit}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
                       {status.text}
@@ -146,8 +154,8 @@ const Items = () => {
                   <h3 className="text-sm font-medium text-gray-900 break-words">{item.name}</h3>
                   <p className="text-xs text-gray-500 break-words">{item.category}</p>
                   <div className="text-sm text-gray-500">
-                    <div>在庫数: {item.stock}{item.unit}</div>
-                    <div>発注点: {item.orderPoint}{item.unit}</div>
+                    <div>在庫数: {item.stock}{item.consumptionUnit}</div>
+                    <div>発注点: {item.orderPoint}{item.consumptionUnit}</div>
                     <div className="whitespace-pre-wrap break-words line-clamp-3" title={item.location}>
                       保管場所: {item.location ?? '-'}
                     </div>
@@ -195,133 +203,19 @@ const Items = () => {
       </div>
 
       {/* 編集モーダル */}
-      <Modal
+      <ItemFormModal
         isOpen={selectedId !== null}
         onClose={() => setSelectedId(null)}
-        title="消耗品編集"
-      >
-        <form id="modal-form">
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  商品名
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                required
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="コピー用紙 A4"
-              />
-            </div>
+        mode="edit"
+        initialValues={selectedItem}
+      />
 
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  カテゴリ
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
-              </label>
-              <select
-                id="category"
-                name="category"
-                required
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="文具"
-              >
-                <option value="文具">文具</option>
-                <option value="オフィス用品">オフィス用品</option>
-                <option value="衛生用品">衛生用品</option>
-                <option value="キッチン用品">キッチン用品</option>
-                <option value="その他">その他</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="unit" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  単位
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
-              </label>
-              <input
-                type="text"
-                id="unit"
-                name="unit"
-                required
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="箱"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  在庫数
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
-              </label>
-              <input
-                type="number"
-                id="stock"
-                name="stock"
-                required
-                min="0"
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="50"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="threshold" className="block text-sm font-medium text-gray-700">
-                <span className="flex items-center gap-1">
-                  発注点
-                  <span className="text-red-500 text-xs">*必須</span>
-                </span>
-              </label>
-              <input
-                type="number"
-                id="threshold"
-                name="threshold"
-                required
-                min="0"
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="20"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="url" className="block text-sm font-medium text-gray-700">
-                URL
-              </label>
-              <input
-                type="url"
-                id="url"
-                name="url"
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="https://example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="memo" className="block text-sm font-medium text-gray-700">
-                メモ
-              </label>
-              <textarea
-                id="memo"
-                name="memo"
-                rows={3}
-                className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-4 py-2"
-                defaultValue="メモを入力"
-              />
-            </div>
-          </div>
-        </form>
-      </Modal>
+      {/* 新規作成モーダル */}
+      <ItemFormModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        mode="create"
+      />
 
       {/* 削除確認モーダル */}
       <DeleteConfirmModal
@@ -339,20 +233,14 @@ const Items = () => {
         isOpen={useItemId !== null}
         onClose={() => setUseItemId(null)}
         itemId={useItemId}
-        unit={items.find(item => item.id === useItemId)?.unit ?? ''}
-      />
-
-      {/* モーダル群 */}
-      <CreateItemModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        unit={items.find(item => item.id === useItemId)?.consumptionUnit ?? ''}
       />
 
       <OrderItemModal
         isOpen={orderItemId !== null}
         onClose={() => setOrderItemId(null)}
         itemId={orderItemId}
-        unit={items.find(item => item.id === orderItemId)?.unit ?? ''}
+        unit={items.find(item => item.id === orderItemId)?.orderUnit ?? ''}
       />
     </div>
   );
