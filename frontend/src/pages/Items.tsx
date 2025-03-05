@@ -1,20 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import UseItemModal from '../components/items/UseItemModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import OrderItemModal from '../components/items/OrderItemModal';
 import ItemFormModal from '../components/items/ItemFormModal';
-
-interface Item {
-  id: number;
-  name: string;
-  category: string;
-  stock: number;
-  orderPoint: number;
-  orderUnit: string;
-  consumptionUnit: string;
-  unitsPerOrder: number;
-  location?: string;
-}
+import { Item } from '../types/api';
+import { itemService } from '../services/itemService';
 
 const Items = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -24,14 +14,29 @@ const Items = () => {
   const [orderItemId, setOrderItemId] = useState<number | null>(null);
 
   // サンプルデータ
-  const items: Item[] = [
-    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 25000, orderPoint: 10000, orderUnit: '箱', consumptionUnit: '枚', unitsPerOrder: 500, location: '1F 文具棚A' },
-    { id: 2, name: 'ボールペン', category: '文具', stock: 48, orderPoint: 24, orderUnit: '箱', consumptionUnit: '本', unitsPerOrder: 12, location: '1F 文具棚B' },
-    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 30, orderPoint: 10, orderUnit: '箱', consumptionUnit: '個', unitsPerOrder: 10, location: '2F 収納庫' },
-    { id: 4, name: 'クリアファイル', category: '文具', stock: 100, orderPoint: 30, orderUnit: 'パック', consumptionUnit: '枚', unitsPerOrder: 10, location: '3F 大会議室横 備品保管庫 A列 2段目' },
-    { id: 5, name: '付箋', category: '文具', stock: 50, orderPoint: 15, orderUnit: 'パック', consumptionUnit: '個', unitsPerOrder: 5, location: '1F 総務部エリア 文具保管庫 B-5' },
-    { id: 6, name: 'マスク', category: '衛生用品', stock: 300, orderPoint: 100, orderUnit: '箱', consumptionUnit: '枚', unitsPerOrder: 50, location: '2F 防災倉庫 衛生用品コーナー 棚番号C-12' },
+  const items: Omit<Item, 'createdAt' | 'updatedAt'>[] = [
+    { id: 1, name: 'コピー用紙 A4', category: '文具', stock: 25000, orderPoint: 10000, consumptionUnit: '枚', unitsPerOrder: 500, location: '1F 文具棚A' },
+    { id: 2, name: 'ボールペン', category: '文具', stock: 48, orderPoint: 24, consumptionUnit: '本', unitsPerOrder: 12, location: '1F 文具棚B' },
+    { id: 3, name: 'ホチキス', category: 'オフィス用品', stock: 30, orderPoint: 10, consumptionUnit: '個', unitsPerOrder: 10, location: '2F 収納庫' },
+    { id: 4, name: 'クリアファイル', category: '文具', stock: 100, orderPoint: 30, consumptionUnit: '枚', unitsPerOrder: 10, location: '3F 大会議室横 備品保管庫 A列 2段目' },
+    { id: 5, name: '付箋', category: '文具', stock: 50, orderPoint: 15, consumptionUnit: '個', unitsPerOrder: 5, location: '1F 総務部エリア 文具保管庫 B-5' },
+    { id: 6, name: 'マスク', category: '衛生用品', stock: 300, orderPoint: 100, consumptionUnit: '枚', unitsPerOrder: 50, location: '2F 防災倉庫 衛生用品コーナー 棚番号C-12' },
   ];
+
+  // APIテスト用の関数
+  const testApi = async () => {
+    try {
+      const response = await itemService.getItems();
+      console.log('API Response:', response.data);
+    } catch (error) {
+      console.error('API Error:', error);
+    }
+  };
+
+  // 開発用：コンポーネントマウント時にAPIをテスト
+  useEffect(() => {
+    testApi();
+  }, []);
 
   const handleDelete = () => {
     // TODO: 削除処理
@@ -240,7 +245,7 @@ const Items = () => {
         isOpen={orderItemId !== null}
         onClose={() => setOrderItemId(null)}
         itemId={orderItemId}
-        unit={items.find(item => item.id === orderItemId)?.orderUnit ?? ''}
+        unit={items.find(item => item.id === orderItemId)?.unitsPerOrder.toString() ?? ''}
       />
     </div>
   );
