@@ -1,0 +1,16 @@
+---
+description: RSpec 実行のルール
+globs: **/*_spec.rb
+---
+
+## RSpec を実行する場合
+
+---
+docker compose exec app bundle exec rspec {{実行したい RSpec のファイルパス}}
+---
+
+また、RSpec が失敗し、失敗した行番号がわかる場合には以下のコマンドを実行することで限定的に RSpec を走らせることができる
+
+---
+docker compose exec app bundle exec rspec {{実行したい RSpec のファイルパス}}:{{失敗したRSpec の行番号}}
+---
